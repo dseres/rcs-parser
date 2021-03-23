@@ -1,8 +1,10 @@
-extern crate jemallocator;
-extern crate nom;
+//r#![warn(missing_docs)]
 
 #[global_allocator]
 static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
+
+mod parsers;
+pub use crate::parsers::num::*;
 
 use nom::{
     branch::alt,
@@ -22,7 +24,6 @@ use nom::{
 ///
 /// Example:
 /// ```rust
-/// extern crate rcs_parser;
 /// use rcs_parser::parse_string;
 /// use nom::{
 ///     error::{Error, ErrorKind, VerboseError, VerboseErrorKind},
@@ -49,17 +50,14 @@ use nom::{
 pub fn parse_string(input: &str) -> IResult<&str, String, VerboseError<&str>> {
     context(
         "string",
-        map(
-            preceded(
+        preceded(
+            tag("@"),
+            terminated(
+                map(many0(alt((is_not("@"), map(tag("@@"), |_| "@")))), |v| {
+                    v.concat()
+                }),
                 tag("@"),
-                terminated(
-                    map(many0(alt((is_not("@"), map(tag("@@"), |_| "@")))), |v| {
-                        v.concat()
-                    }),
-                    tag("@"),
-                ),
             ),
-            |s| s.to_string(),
         ),
     )(input)
 }
@@ -89,15 +87,30 @@ mod tests {
             crate::parse_string("@abc@@def@@@@ghi@xyz")
         );
         assert_eq!(
-            Err(Err::Error(VerboseError{ errors:  vec![("zzz", VerboseErrorKind::Nom(ErrorKind::Tag)), ("zzz", VerboseErrorKind::Context("string"))]})),
+            Err(Err::Error(VerboseError {
+                errors: vec![
+                    ("zzz", VerboseErrorKind::Nom(ErrorKind::Tag)),
+                    ("zzz", VerboseErrorKind::Context("string"))
+                ]
+            })),
             crate::parse_string("zzz")
         );
         assert_eq!(
-            Err(Err::Error(VerboseError{ errors:  vec![("zzz@", VerboseErrorKind::Nom(ErrorKind::Tag)), ("zzz@", VerboseErrorKind::Context("string"))]})),
+            Err(Err::Error(VerboseError {
+                errors: vec![
+                    ("zzz@", VerboseErrorKind::Nom(ErrorKind::Tag)),
+                    ("zzz@", VerboseErrorKind::Context("string"))
+                ]
+            })),
             crate::parse_string("zzz@")
         );
         assert_eq!(
-            Err(Err::Error(VerboseError{ errors:  vec![("", VerboseErrorKind::Nom(ErrorKind::Tag)), ("@zzz", VerboseErrorKind::Context("string"))]})),
+            Err(Err::Error(VerboseError {
+                errors: vec![
+                    ("", VerboseErrorKind::Nom(ErrorKind::Tag)),
+                    ("@zzz", VerboseErrorKind::Context("string"))
+                ]
+            })),
             crate::parse_string("@zzz")
         );
     }
