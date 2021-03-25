@@ -72,7 +72,10 @@ mod tests {
             Ok(("xyz", "abc".to_string())),
             string::parse_string("@abc@xyz")
         );
-        assert_eq!(Ok(("xyz", "@".to_string())), string::parse_string("@@@@xyz"));
+        assert_eq!(
+            Ok(("xyz", "@".to_string())),
+            string::parse_string("@@@@xyz")
+        );
         assert_eq!(
             Ok(("xyz", "abc@def".to_string())),
             string::parse_string("@abc@@def@xyz")

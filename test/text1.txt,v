@@ -1,0 +1,62 @@
+head	1.2;
+access;
+symbols
+	v1_1:1.2;
+locks
+	dseres:1.2; strict;
+comment	@# @;
+
+
+1.2
+date	2021.03.25.10.16.43;	author dseres;	state beta;
+branches;
+next	1.1;
+
+1.1
+date	2021.03.25.10.14.38;	author dseres;	state unstable;
+branches;
+next	;
+
+
+desc
+@initial commit
+text from lao
+@
+
+
+1.2
+log
+@Tzu has given some new idea. 
+
+Maybe it is a @@useful@@ idea.
+@
+text
+@The Nameless is the origin of Heaven and Earth;
+The named is the mother of all things.
+
+Therefore let there always be non-being,
+  so we may see their subtlety,
+And let there always be being,
+  so we may see their outcome.
+The two are the same,
+But after they are produced,
+  they have different names.
+They both may be called deep and profound.
+Deeper and more profound,
+The door of all subtleties!
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@a0 2
+The Way that can be told of is not the eternal Way;
+The name that can be named is not the eternal name.
+d2 2
+a3 1
+The Named is the mother of all things.
+d11 3
+@

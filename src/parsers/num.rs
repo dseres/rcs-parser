@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 
+use crate::Num;
 use nom::{
     bytes::complete::tag,
     character::complete::digit1,
@@ -8,27 +9,6 @@ use nom::{
     multi::separated_list1,
     IResult,
 };
-
-/// Num stores an RCS revision number as vector of unsigned integers.
-///
-/// E.g.: 1.2.3.4 will be represented as :
-/// ```rust
-/// # use rcs_parser::Num;
-/// # fn not_needed()-> Num{
-/// Num{numbers:vec![1,2,3,4]}
-/// # }
-/// ```
-#[derive(Debug, PartialEq)]
-pub struct Num {
-    ///The numbers of a revision number
-    pub numbers: Vec<u32>,
-}
-
-impl Num {
-    pub fn new(numbers: Vec<u32>) -> Num {
-        Num { numbers }
-    }
-}
 
 /// Parsing a revision number.
 ///
@@ -56,7 +36,7 @@ impl Num {
 ///     })),
 ///     parse_num("")
 /// );
-/// 
+///
 /// assert_eq!(
 ///     Err(Err::Error(VerboseError {
 ///         errors: vec![
@@ -82,8 +62,7 @@ pub fn parse_num(input: &str) -> IResult<&str, Num, VerboseError<&str>> {
 
 #[cfg(test)]
 mod test {
-    use crate::parsers::num;
-    use crate::parsers::num::Num;
+    use crate::Num;
     use nom::{
         error::{ErrorKind, VerboseError, VerboseErrorKind},
         Err,
@@ -91,16 +70,16 @@ mod test {
 
     #[test]
     fn parse_num() {
-        assert_eq!(Ok(("", Num::new(vec![1]))), num::parse_num("1"));
-        assert_eq!(Ok(("", Num::new(vec![1, 1]))), num::parse_num("1.1"));
-        assert_eq!(Ok(("", Num::new(vec![1, 1, 1]))), num::parse_num("1.1.1"));
+        assert_eq!(Ok(("", Num::new(vec![1]))), crate::parse_num("1"));
+        assert_eq!(Ok(("", Num::new(vec![1, 1]))), crate::parse_num("1.1"));
+        assert_eq!(Ok(("", Num::new(vec![1, 1, 1]))), crate::parse_num("1.1.1"));
         assert_eq!(
             Ok(("w", Num::new(vec![134, 1, 4, 2]))),
-            num::parse_num("134.1.4.2w")
+            crate::parse_num("134.1.4.2w")
         );
         assert_eq!(
             Ok(("a.1.4.2w", Num::new(vec![134]))),
-            num::parse_num("134a.1.4.2w")
+            crate::parse_num("134a.1.4.2w")
         );
         assert_eq!(
             Err(Err::Error(VerboseError {
@@ -109,7 +88,7 @@ mod test {
                     ("  1", VerboseErrorKind::Context("Num"))
                 ]
             })),
-            num::parse_num("  1")
+            crate::parse_num("  1")
         );
     }
 }
