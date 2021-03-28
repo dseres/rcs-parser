@@ -6,8 +6,8 @@ static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
 mod parsers;
 pub use crate::parsers::deltatext::*;
 pub use crate::parsers::diff::{parse_diff_command, parse_diff_line, parse_diff_lines};
-pub use crate::parsers::num::*;
-pub use crate::parsers::string::*;
+pub use crate::parsers::num::parse_num;
+pub use crate::parsers::string::parse_string;
 
 /// Num stores an RCS revision number as vector of unsigned integers.
 ///

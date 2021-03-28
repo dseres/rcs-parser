@@ -13,6 +13,42 @@ use nom::{
     IResult,
 };
 
+/// Parsing diff format. 
+/// 
+/// GNU document RCS diff format in the [diffutils documentation](https://www.gnu.org/software/diffutils/manual/html_node/RCS.html#RCS).
+/// 
+/// Examples
+/// ```rust
+/// use rcs_parser::{parse_diff_command, DiffCommand};
+/// use nom::{
+///     error::{ErrorKind, VerboseError, VerboseErrorKind},
+///     Err,
+/// };
+/// assert_eq!(
+///     Ok(("", DiffCommand::Delete(1, 2))),
+///     parse_diff_command("d1 2\r\n")
+/// );
+/// assert_eq!(
+///     Ok(("", DiffCommand::Delete(1, 2))),
+///     parse_diff_command("d  1 \n 2\n")
+/// );
+/// assert_eq!(
+///     Ok((
+///         "",
+///         DiffCommand::Add(1213, vec!["aaa".to_string(), "bbb".to_string()])
+///     )),
+///     parse_diff_command("a1213 2\naaa\nbbb\n")
+/// );
+/// assert_eq!(
+///     Err(Err::Error(VerboseError {
+///         errors: vec![
+///             ("c2 3\n", VerboseErrorKind::Nom(ErrorKind::OneOf)),
+///             ("c2 3\n", VerboseErrorKind::Context("Diff"))
+///         ]
+///     })),
+///     parse_diff_command("c2 3\n")
+/// );
+/// ```
 pub fn parse_diff_command(input: &str) -> IResult<&str, DiffCommand, VerboseError<&str>> {
     let (input, (command, position, length)) = context(
         CONTEXT,
@@ -39,6 +75,33 @@ pub fn parse_diff_command(input: &str) -> IResult<&str, DiffCommand, VerboseErro
     }
 }
 
+/// Reads n lines from a diff string
+/// 
+/// Examples
+/// ```rust
+/// use rcs_parser::parse_diff_lines;
+/// use nom::{
+///     error::{ErrorKind, VerboseError, VerboseErrorKind},
+///     Err,
+/// };
+/// assert_eq!(
+///     Ok(("", vec!["first line".to_string(), "second line".to_string()])),
+///     parse_diff_lines("first line\nsecond line\n", 2)
+/// );
+/// assert_eq!(
+///     Ok(("ghi\r\n", vec!["first line with windows style line ending".to_string(), "second line with windows style line ending".to_string()])),
+///     parse_diff_lines("first line with windows style line ending\r\nsecond line with windows style line ending\r\nghi\r\n", 2)
+/// );
+/// assert_eq!(
+///     Err(Err::Error(VerboseError {
+///         errors: vec![
+///             ("", VerboseErrorKind::Nom(ErrorKind::CrLf)),
+///             ("third line without line ending", VerboseErrorKind::Context("Diff"))
+///         ]
+///     })),
+///     parse_diff_lines("first line\nsecond line\nthird line without line ending", 3)
+/// );
+/// ``` 
 pub fn parse_diff_lines(
     input: &str,
     line_count: u32,
@@ -53,6 +116,29 @@ pub fn parse_diff_lines(
     Ok((input, lines))
 }
 
+/// Parses one line from input.
+///
+/// Examples
+/// ```rust
+/// use rcs_parser::parse_diff_line;
+/// use nom::{
+///     error::{ErrorKind, VerboseError, VerboseErrorKind},
+///     Err,
+/// };
+///
+/// assert_eq!(Ok(("", "abc")), parse_diff_line("abc\n"));
+/// assert_eq!(Ok(("", "abc 123")), parse_diff_line("abc 123\r\n"));
+///
+/// assert_eq!(
+///     Err(Err::Error(VerboseError {
+///         errors: vec![
+///             ("", VerboseErrorKind::Nom(ErrorKind::CrLf)),
+///             ("abc", VerboseErrorKind::Context( "Diff"))
+///         ]
+///     })),
+///     parse_diff_line("abc")
+/// );
+/// ```
 pub fn parse_diff_line(input: &str) -> IResult<&str, &str, VerboseError<&str>> {
     context(CONTEXT, terminated(not_line_ending, line_ending))(input)
 }
