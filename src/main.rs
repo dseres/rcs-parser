@@ -17,4 +17,22 @@ fn main() {
     if let Err(Err::Error(e)) = result {
         println!("Error in input:\n{}", convert_error(data, e));
     }
+
+    let delta_str = r#"1.1
+log
+@Initial revision
+@
+text
+@a0 2
+The Way that can be told of is not the eternal Way;
+The name that can be named is not the eternal name.
+d2 2
+a3 1
+The Named is the mother of all things.
+d11 3
+@"#;
+    println!("Parsing the following text:\n{:?}", delta_str);
+    if let Ok((_, delta)) = parse_deltatext(delta_str) {
+        println!("{:?}", delta);
+    };
 }

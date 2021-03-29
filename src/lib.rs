@@ -5,7 +5,7 @@ static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
 
 mod parsers;
 pub use crate::parsers::deltatext::*;
-pub use crate::parsers::diff::{parse_diff_command, parse_diff_line, parse_diff_lines};
+pub use crate::parsers::diff::{parse_diff_command, parse_diff_line};
 pub use crate::parsers::num::parse_num;
 pub use crate::parsers::string::parse_string;
 
@@ -18,7 +18,7 @@ pub use crate::parsers::string::parse_string;
 /// Num{numbers:vec![1,2,3,4]}
 /// # }
 /// ```
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Num {
     ///The numbers of a revision number
     pub numbers: Vec<u32>,
@@ -30,14 +30,14 @@ impl Num {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum DiffCommand {
     Add(u32, Vec<String>),
     Delete(u32, u32),
 }
 
-#[derive(Debug, PartialEq)]
-pub struct Deltatext {
+#[derive(Debug, PartialEq, Clone)]
+pub struct DeltaText {
     ///The numbers of a revision number
     pub num: Num,
     pub log: String,
