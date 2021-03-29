@@ -30,16 +30,22 @@ impl Num {
     }
 }
 
+///Holds an instruction of diff command
 #[derive(Debug, PartialEq, Clone)]
 pub enum DiffCommand {
+    ///This instruction means add the lines at position
     Add(u32, Vec<String>),
+    ///This instruction means delete n (second parameter) lines from position (first parameter).
     Delete(u32, u32),
 }
 
+/// holds differences between revisions.
 #[derive(Debug, PartialEq, Clone)]
 pub struct DeltaText {
-    ///The numbers of a revision number
+    ///The revision number
     pub num: Num,
+    ///Commit log
     pub log: String,
+    ///Differences between this and its parent revision
     pub diff: Vec<DiffCommand>,
 }
