@@ -2,7 +2,7 @@
 
 pub static CONTEXT: &str = "Diff";
 
-use crate::*;
+use crate::DiffCommand;
 use nom::{
     branch::alt,
     bytes::complete::{is_not, tag},
@@ -132,7 +132,7 @@ pub fn parse_diff_line(input: &str) -> IResult<&str, String, VerboseError<&str>>
 #[cfg(test)]
 mod test {
 
-    use crate::{parsers::diff::CONTEXT, DiffCommand};
+    use crate::{DiffCommand};
     use nom::{
         error::{ErrorKind, VerboseError, VerboseErrorKind},
         Err,
@@ -142,48 +142,48 @@ mod test {
     fn parse_diff_line() {
         assert_eq!(
             Ok(("def", "abc".to_string())),
-            crate::parse_diff_line("abc\ndef")
+            super::parse_diff_line("abc\ndef")
         );
         assert_eq!(
             Ok(("def", "abc@abc".to_string())),
-            crate::parse_diff_line("abc@@abc\ndef")
+            super::parse_diff_line("abc@@abc\ndef")
         );
         assert_eq!(
             Ok(("def", "abc@@abc".to_string())),
-            crate::parse_diff_line("abc@@@@abc\ndef")
+            super::parse_diff_line("abc@@@@abc\ndef")
         );
         assert_eq!(
             Ok(("def", "abc".to_string())),
-            crate::parse_diff_line("abc\r\ndef")
+            super::parse_diff_line("abc\r\ndef")
         );
-        assert_eq!(Ok(("", "@".to_string())), crate::parse_diff_line("@@\n"));
-        assert_eq!(Ok(("", "".to_string())), crate::parse_diff_line("\n"));
+        assert_eq!(Ok(("", "@".to_string())), super::parse_diff_line("@@\n"));
+        assert_eq!(Ok(("", "".to_string())), super::parse_diff_line("\n"));
         assert_eq!(
             Err(Err::Error(VerboseError {
                 errors: vec![
                     ("@abc\n", VerboseErrorKind::Nom(ErrorKind::CrLf)),
-                    ("abc@abc\n", VerboseErrorKind::Context(CONTEXT))
+                    ("abc@abc\n", VerboseErrorKind::Context(super::CONTEXT))
                 ]
             })),
-            crate::parse_diff_line("abc@abc\n")
+            super::parse_diff_line("abc@abc\n")
         );
         assert_eq!(
             Err(Err::Error(VerboseError {
                 errors: vec![
                     ("", VerboseErrorKind::Nom(ErrorKind::CrLf)),
-                    ("abc", VerboseErrorKind::Context(CONTEXT))
+                    ("abc", VerboseErrorKind::Context(super::CONTEXT))
                 ]
             })),
-            crate::parse_diff_line("abc")
+            super::parse_diff_line("abc")
         );
         assert_eq!(
             Err(Err::Error(VerboseError {
                 errors: vec![
                     ("", VerboseErrorKind::Nom(ErrorKind::CrLf)),
-                    ("", VerboseErrorKind::Context(CONTEXT))
+                    ("", VerboseErrorKind::Context(super::CONTEXT))
                 ]
             })),
-            crate::parse_diff_line("")
+            super::parse_diff_line("")
         );
     }
 
@@ -191,38 +191,38 @@ mod test {
     fn parse_diff_command() {
         assert_eq!(
             Ok(("", DiffCommand::Delete(1, 2))),
-            crate::parse_diff_command("d1 2\r\n")
+            super::parse_diff_command("d1 2\r\n")
         );
         assert_eq!(
             Ok(("", DiffCommand::Delete(1, 2))),
-            crate::parse_diff_command("d  1 \n 2\n")
+            super::parse_diff_command("d  1 \n 2\n")
         );
         assert_eq!(
             Ok((
                 "",
                 DiffCommand::Add(1213, vec!["aaa".to_string(), "bbb".to_string()])
             )),
-            crate::parse_diff_command("a1213 2\naaa\nbbb\n")
+            super::parse_diff_command("a1213 2\naaa\nbbb\n")
         );
         assert_eq!(
             Err(Err::Error(VerboseError {
                 errors: vec![
                     ("c2 3\n", VerboseErrorKind::Nom(ErrorKind::OneOf)),
-                    ("c2 3\n", VerboseErrorKind::Context(CONTEXT))
+                    ("c2 3\n", VerboseErrorKind::Context(super::CONTEXT))
                 ]
             })),
-            crate::parse_diff_command("c2 3\n")
+            super::parse_diff_command("c2 3\n")
         );
         assert_eq!(
             Err(Err::Error(VerboseError {
                 errors: vec![
                     ("", VerboseErrorKind::Nom(ErrorKind::CrLf)),
-                    ("", VerboseErrorKind::Context(CONTEXT)),
+                    ("", VerboseErrorKind::Context(super::CONTEXT)),
                     ("", VerboseErrorKind::Nom(ErrorKind::Count)),
-                    ("", VerboseErrorKind::Context(CONTEXT)),
+                    ("", VerboseErrorKind::Context(super::CONTEXT)),
                 ]
             })),
-            crate::parse_diff_command("a2 3\n")
+            super::parse_diff_command("a2 3\n")
         );
     }
 }

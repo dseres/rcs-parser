@@ -62,7 +62,7 @@ pub fn parse_num(input: &str) -> IResult<&str, Num, VerboseError<&str>> {
 
 #[cfg(test)]
 mod test {
-    use crate::Num;
+    use super::Num;
     use nom::{
         error::{ErrorKind, VerboseError, VerboseErrorKind},
         Err,
@@ -70,16 +70,16 @@ mod test {
 
     #[test]
     fn parse_num() {
-        assert_eq!(Ok(("", Num::new(vec![1]))), crate::parse_num("1"));
-        assert_eq!(Ok(("", Num::new(vec![1, 1]))), crate::parse_num("1.1"));
-        assert_eq!(Ok(("", Num::new(vec![1, 1, 1]))), crate::parse_num("1.1.1"));
+        assert_eq!(Ok(("", Num::new(vec![1]))), super::parse_num("1"));
+        assert_eq!(Ok(("", Num::new(vec![1, 1]))), super::parse_num("1.1"));
+        assert_eq!(Ok(("", Num::new(vec![1, 1, 1]))), super::parse_num("1.1.1"));
         assert_eq!(
             Ok(("w", Num::new(vec![134, 1, 4, 2]))),
-            crate::parse_num("134.1.4.2w")
+            super::parse_num("134.1.4.2w")
         );
         assert_eq!(
             Ok(("a.1.4.2w", Num::new(vec![134]))),
-            crate::parse_num("134a.1.4.2w")
+            super::parse_num("134a.1.4.2w")
         );
         assert_eq!(
             Err(Err::Error(VerboseError {
@@ -88,7 +88,7 @@ mod test {
                     ("  1", VerboseErrorKind::Context("Num"))
                 ]
             })),
-            crate::parse_num("  1")
+            super::parse_num("  1")
         );
     }
 }

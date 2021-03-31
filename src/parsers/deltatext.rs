@@ -87,7 +87,7 @@ pub fn parse_deltatext(input: &str) -> IResult<&str, DeltaText, VerboseError<&st
 
 #[cfg(test)]
 mod test {
-    use crate::{parsers::deltatext, DeltaText, DiffCommand, Num};
+    use crate::{DeltaText, DiffCommand, Num};
     use nom::{
         error::{ErrorKind, VerboseError, VerboseErrorKind},
         Err,
@@ -133,7 +133,7 @@ d11 3
                     ]
                 }
             )),
-            deltatext::parse_deltatext(delta_str)
+            super::parse_deltatext(delta_str)
         );
     }
 
@@ -160,7 +160,7 @@ d11 3
                     (delta_str, VerboseErrorKind::Context("DeltaText")),
                 ]
             })),
-            deltatext::parse_deltatext(delta_str)
+            super::parse_deltatext(delta_str)
         );
     }
 
@@ -181,7 +181,7 @@ text
                     (delta_str, VerboseErrorKind::Context("DeltaText"))
                 ]
             })),
-            deltatext::parse_deltatext(delta_str)
+            super::parse_deltatext(delta_str)
         );
 
         let delta_str = r#"1.1
@@ -196,7 +196,7 @@ text
                     (delta_str, VerboseErrorKind::Context("DeltaText")),
                 ]
             })),
-            deltatext::parse_deltatext(delta_str)
+            super::parse_deltatext(delta_str)
         );
 
         let delta_str = r#"1.1
@@ -209,7 +209,7 @@ log @@
                     (delta_str, VerboseErrorKind::Context("DeltaText")),
                 ]
             })),
-            deltatext::parse_deltatext(delta_str)
+            super::parse_deltatext(delta_str)
         );
 
         let delta_str = r#"1.1
@@ -222,7 +222,7 @@ text "#;
                     (delta_str, VerboseErrorKind::Context("DeltaText")),
                 ]
             })),
-            deltatext::parse_deltatext(delta_str)
+            super::parse_deltatext(delta_str)
         );
     }
 }

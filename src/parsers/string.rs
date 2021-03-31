@@ -59,7 +59,6 @@ pub fn parse_string(input: &str) -> IResult<&str, String, VerboseError<&str>> {
 #[cfg(test)]
 mod tests {
 
-    use crate::parsers::string;
     use nom::{
         error::{ErrorKind, VerboseError, VerboseErrorKind},
         Err,
@@ -67,22 +66,19 @@ mod tests {
 
     #[test]
     fn parse_string() {
-        assert_eq!(Ok(("", "".to_string())), string::parse_string("@@"));
+        assert_eq!(Ok(("", "".to_string())), super::parse_string("@@"));
         assert_eq!(
             Ok(("xyz", "abc".to_string())),
-            string::parse_string("@abc@xyz")
+            super::parse_string("@abc@xyz")
         );
-        assert_eq!(
-            Ok(("xyz", "@".to_string())),
-            string::parse_string("@@@@xyz")
-        );
+        assert_eq!(Ok(("xyz", "@".to_string())), super::parse_string("@@@@xyz"));
         assert_eq!(
             Ok(("xyz", "abc@def".to_string())),
-            string::parse_string("@abc@@def@xyz")
+            super::parse_string("@abc@@def@xyz")
         );
         assert_eq!(
             Ok(("xyz", "abc@def@@ghi".to_string())),
-            string::parse_string("@abc@@def@@@@ghi@xyz")
+            super::parse_string("@abc@@def@@@@ghi@xyz")
         );
         assert_eq!(
             Err(Err::Error(VerboseError {
@@ -91,7 +87,7 @@ mod tests {
                     ("zzz", VerboseErrorKind::Context("string"))
                 ]
             })),
-            string::parse_string("zzz")
+            super::parse_string("zzz")
         );
         assert_eq!(
             Err(Err::Error(VerboseError {
@@ -100,7 +96,7 @@ mod tests {
                     ("zzz@", VerboseErrorKind::Context("string"))
                 ]
             })),
-            string::parse_string("zzz@")
+            super::parse_string("zzz@")
         );
         assert_eq!(
             Err(Err::Error(VerboseError {
@@ -109,7 +105,7 @@ mod tests {
                     ("@zzz", VerboseErrorKind::Context("string"))
                 ]
             })),
-            string::parse_string("@zzz")
+            super::parse_string("@zzz")
         );
     }
 }
