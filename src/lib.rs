@@ -8,7 +8,7 @@ pub use crate::parsers::deltatext::*;
 pub use crate::parsers::diff::{parse_diff_command, parse_diff_line};
 pub use crate::parsers::num::parse_num;
 pub use crate::parsers::string::parse_string;
-pub use crate::parsers::chars::{is_special_chars, is_idchar, parse_sym, parse_id};
+pub use crate::parsers::chars::{is_special_chars, is_visible_char,is_idchar, parse_sym, parse_id};
 
 /// Num stores an RCS revision number as vector of unsigned integers.
 ///
@@ -49,4 +49,16 @@ pub struct DeltaText {
     pub log: String,
     ///Differences between this and its parent revision
     pub diff: Vec<DiffCommand>,
+}
+
+
+
+pub struct Delta {
+    pub num: Num,
+    pub date: Num,
+    pub author: String,
+    pub state: Option<String>,
+    pub branches: Vec<Num>,
+    pub next: Option<Num>,
+    pub commitid: Option<String>,
 }

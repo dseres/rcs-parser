@@ -22,6 +22,23 @@ pub fn is_special_chars(c: char) -> bool {
     c == '$' || c == ',' || c == '.' || c == ':' || c == ';' || c == '@'
 }
 
+/// Checks if a character is visible. Visible graphic characters are (octal) codes 041–176 and 240–377.
+/// 
+/// Examples:
+/// ```rust
+/// use rcs_parser::is_visible_char;
+///
+/// assert_eq!( true, is_visible_char('a'));
+/// assert_eq!( true, is_visible_char('9'));
+/// assert_eq!( true, is_visible_char('*'));
+/// assert_eq!( true, is_visible_char('.'));
+/// assert_eq!( true, is_visible_char('ö'));
+/// assert_eq!( false, is_visible_char(' '));
+/// ```
+pub fn is_visible_char(c: char) -> bool {
+    (0x21 as char) <= c && c <= (0x7e as char) || (0xA0 as char) <= c && c <= (0xff as char)
+}
+
 ///Checks if a character is idchar.
 ///
 /// > idchar    ::=  any visible graphic character except [special](is_special_chars)
@@ -37,7 +54,7 @@ pub fn is_special_chars(c: char) -> bool {
 /// assert_eq!( false, is_idchar(' '));
 /// ```
 pub fn is_idchar(c: char) -> bool {
-    (0x21 as char) <= c && c <= (0x7e as char) && !is_special_chars(c)
+    is_visible_char(c) && !is_special_chars(c)
 }
 
 /// parses a symbol
@@ -122,13 +139,13 @@ mod test {
         assert_eq!(true, super::is_idchar('*'));
         assert_eq!(true, super::is_idchar('~'));
         assert_eq!(true, super::is_idchar('!'));
+        assert_eq!(true, super::is_idchar('á'));
 
         assert_eq!(false, super::is_idchar('$'));
         assert_eq!(false, super::is_idchar(' '));
         assert_eq!(false, super::is_idchar('\u{007f}'));
         assert_eq!(false, super::is_idchar(' '));
         assert_eq!(false, super::is_idchar('\n'));
-        assert_eq!(false, super::is_idchar('á'));
     }
 
     #[test]
@@ -136,7 +153,7 @@ mod test {
         assert_eq!(Ok(("$zzz", "abc123*")), super::parse_sym("abc123*$zzz"));
         assert_eq!(Ok((" ~~~", "XZY-_")), super::parse_sym("XZY-_ ~~~"));
         assert_eq!(Ok(("\t abc", "abc123!")), super::parse_sym("abc123!\t abc"));
-        assert_eq!(Ok(("é", "abc123*")), super::parse_sym("abc123*é"));
+        assert_eq!(Ok(("", "abc123*é")), super::parse_sym("abc123*é"));
         assert_eq!(
             Err(Err::Error(VerboseError {
                 errors: vec![
