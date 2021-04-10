@@ -11,7 +11,7 @@ use nom::{
 /// > special   ::=  "$" | "," | "." | ":" | ";" | "@"
 ///
 /// Examples:
-/// ```rust
+/// ```ignore
 /// use rcs_parser::is_special_chars;
 ///
 /// assert_eq!( true, is_special_chars('$'));
@@ -23,9 +23,9 @@ pub fn is_special_chars(c: char) -> bool {
 }
 
 /// Checks if a character is visible. Visible graphic characters are (octal) codes 041–176 and 240–377.
-/// 
+///
 /// Examples:
-/// ```rust
+/// ```ignore
 /// use rcs_parser::is_visible_char;
 ///
 /// assert_eq!( true, is_visible_char('a'));
@@ -44,7 +44,7 @@ pub fn is_visible_char(c: char) -> bool {
 /// > idchar    ::=  any visible graphic character except [special](is_special_chars)
 ///
 /// Examples:
-/// ```rust
+/// ```ignore
 /// use rcs_parser::is_idchar;
 ///
 /// assert_eq!( true, is_idchar('a'));
@@ -62,7 +62,7 @@ pub fn is_idchar(c: char) -> bool {
 /// > sym       ::=  {idchar}+
 ///
 /// Example:
-/// ```rust
+/// ```ignore
 /// use rcs_parser::parse_sym;
 /// use nom::{
 ///     error::{Error, ErrorKind, VerboseError, VerboseErrorKind},
@@ -87,7 +87,7 @@ pub fn parse_sym(input: &str) -> IResult<&str, &str, VerboseError<&str>> {
 /// > sym       ::=  {idchar}+
 ///
 /// Example:
-/// ```rust
+/// ```ignore
 /// use rcs_parser::parse_id;
 /// use nom::{
 ///     error::{Error, ErrorKind, VerboseError, VerboseErrorKind},

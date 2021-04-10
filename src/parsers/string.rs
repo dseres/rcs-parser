@@ -17,7 +17,7 @@ use nom::{
 /// > string    ::=  "@" { any character, with @ doubled }* "@"
 ///
 /// Example:
-/// ```rust
+/// ```ignore
 /// use rcs_parser::parse_string;
 /// use nom::{
 ///     error::{Error, ErrorKind, VerboseError, VerboseErrorKind},

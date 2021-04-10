@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use crate::*;
+use crate::{parsers::*, *};
 use nom::{
     bytes::complete::tag,
     character::complete::{multispace0, multispace1},
@@ -62,7 +62,7 @@ fn parse_author(input: &str) -> IResult<&str, String, VerboseError<&str>> {
         CONTEXT,
         delimited(
             preceded(multispace1, tag("author")),
-            preceded(multispace1, map(parse_id, |s| String::from(s))),
+            preceded(multispace1, map(parse_id, String::from)),
             preceded(multispace0, tag(";")),
         ),
     )(input)
@@ -73,7 +73,7 @@ fn parse_state(input: &str) -> IResult<&str, Option<String>, VerboseError<&str>>
         CONTEXT,
         delimited(
             preceded(multispace1, tag("state")),
-            opt(preceded(multispace1, map(parse_id, |s| String::from(s)))),
+            opt(preceded(multispace1, map(parse_id, String::from))),
             preceded(multispace0, tag(";")),
         ),
     )(input)
@@ -106,7 +106,7 @@ fn parse_commitid(input: &str) -> IResult<&str, Option<String>, VerboseError<&st
         CONTEXT,
         opt(delimited(
             preceded(multispace1, tag("commitid")),
-            preceded(multispace1, map(parse_sym, |s| String::from(s))),
+            preceded(multispace1, map(parse_sym, String::from)),
             preceded(multispace0, tag(";")),
         )),
     )(input)
@@ -114,7 +114,7 @@ fn parse_commitid(input: &str) -> IResult<&str, Option<String>, VerboseError<&st
 
 #[cfg(test)]
 mod test {
-    use crate::{Delta, Num, num};
+    use crate::{num, Delta, Num};
     use nom::{
         error::{ErrorKind, VerboseError, VerboseErrorKind},
         Err,
@@ -193,10 +193,7 @@ mod test {
 
     #[test]
     fn parse_next() {
-        assert_eq!(
-            Ok(("", Some(num![1, 1]))),
-            super::parse_next("\nnext 1.1;")
-        );
+        assert_eq!(Ok(("", Some(num![1, 1]))), super::parse_next("\nnext 1.1;"));
         assert_eq!(Ok(("", None)), super::parse_next("\nnext;"));
     }
 
@@ -222,10 +219,10 @@ mod test {
             date: num![2021, 03, 25, 10, 16, 43],
             author: String::from("dseres"),
             state: Some(String::from("beta")),
-            branches: vec![ num![1, 2, 1, 1], num![1, 2, 2, 1]],
+            branches: vec![num![1, 2, 1, 1], num![1, 2, 2, 1]],
             next: Some(num![1, 1]),
             commitid: None,
         };
-        assert_eq!(Ok(("",delta)), super::parse_delta(delta_str));
+        assert_eq!(Ok(("", delta)), super::parse_delta(delta_str));
     }
 }

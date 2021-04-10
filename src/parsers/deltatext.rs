@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use crate::*;
+use crate::{parsers::*, *};
 use nom::{
     bytes::complete::tag,
     character::complete::multispace1,
@@ -18,7 +18,7 @@ use nom::{
 /// >                "text"  string
 ///
 /// Example:
-/// ```rust
+/// ```ignore
 /// use rcs_parser::{parse_deltatext, DeltaText, DiffCommand, Num};
 ///
 /// let delta_str = r#"1.1
