@@ -25,10 +25,17 @@ pub struct Num {
     pub numbers: Vec<u32>,
 }
 
-impl Num {
-    pub fn new(numbers: Vec<u32>) -> Num {
-        Num { numbers }
-    }
+#[macro_export]
+macro_rules! num {
+    ( $( $x:expr ),* ) => {
+        {
+            let mut temp_vec = Vec::new();
+            $(
+                temp_vec.push($x);
+            )*
+            Num{numbers: temp_vec}
+        }
+    };
 }
 
 ///Holds an instruction of diff command
@@ -52,7 +59,7 @@ pub struct DeltaText {
 }
 
 
-
+#[derive(Debug, PartialEq, Clone)]
 pub struct Delta {
     pub num: Num,
     pub date: Num,
@@ -61,4 +68,16 @@ pub struct Delta {
     pub branches: Vec<Num>,
     pub next: Option<Num>,
     pub commitid: Option<String>,
+}
+
+#[cfg(test)]
+mod test{
+    use super::*;
+
+    #[test]
+    fn num() {
+        assert_eq!(Num{numbers: vec![100]}, num!(100));
+        assert_eq!(Num{numbers: vec![1,1]}, num!(1,1));
+        assert_eq!(Num{numbers: vec![1,1,2,1]}, num!(1,1,2,1));
+    }
 }

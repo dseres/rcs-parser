@@ -1,19 +1,48 @@
-head	1.2;
+head	2.1;
 access;
 symbols
+	Fix2:1.2.2.3
+	Fix1:1.2.1.1
+	v2_1:2.1
 	v1_1:1.2;
-locks
-	dseres:1.2; strict;
+locks; strict;
 comment	@# @;
 
 
+2.1
+date	2021.04.10.09.38.42;	author dseres;	state Production;
+branches;
+next	1.2;
+
 1.2
 date	2021.03.25.10.16.43;	author dseres;	state beta;
-branches;
+branches
+	1.2.1.1
+	1.2.2.1;
 next	1.1;
 
 1.1
 date	2021.03.25.10.14.38;	author dseres;	state unstable;
+branches;
+next	;
+
+1.2.1.1
+date	2021.04.10.09.40.41;	author dseres;	state Testing;
+branches;
+next	;
+
+1.2.2.1
+date	2021.04.10.09.42.42;	author dseres;	state Testing;
+branches;
+next	1.2.2.2;
+
+1.2.2.2
+date	2021.04.10.09.44.12;	author dseres;	state Exp;
+branches;
+next	1.2.2.3;
+
+1.2.2.3
+date	2021.04.10.09.45.52;	author dseres;	state Exp;
 branches;
 next	;
 
@@ -24,16 +53,15 @@ text from lao
 @
 
 
-1.2
+2.1
 log
-@Tzu has given some new idea. 
-
-Maybe it is a @@useful@@ idea.
+@lao back
 @
 text
-@The Nameless is the origin of Heaven and Earth;
-The named is the mother of all things.
-
+@The Way that can be told of is not the eternal Way;
+The name that can be named is not the eternal name.
+The Nameless is the origin of Heaven and Earth;
+The Named is the mother of all things.
 Therefore let there always be non-being,
   so we may see their subtlety,
 And let there always be being,
@@ -41,9 +69,73 @@ And let there always be being,
 The two are the same,
 But after they are produced,
   they have different names.
+@
+
+
+1.2
+log
+@Tzu has given some new idea. 
+
+Maybe it is a @@useful@@ idea.
+@
+text
+@d1 2
+d4 1
+a4 2
+The named is the mother of all things.
+
+a11 3
 They both may be called deep and profound.
 Deeper and more profound,
 The door of all subtleties!
+@
+
+
+1.2.2.1
+log
+@It's identical.
+Log message contains an @@ and 
+new lines.
+@
+text
+@@
+
+
+1.2.2.2
+log
+@lao on second branch
+@
+text
+@a0 2
+The Way that can be told of is not the eternal Way;
+The name that can be named is not the eternal name.
+d2 2
+a3 1
+The Named is the mother of all things.
+d11 3
+@
+
+
+1.2.2.3
+log
+@symbol rewriten
+@
+text
+@@
+
+
+1.2.1.1
+log
+@Lao on a branch.
+@
+text
+@a0 2
+The Way that can be told of is not the eternal Way;
+The name that can be named is not the eternal name.
+d2 2
+a3 1
+The Named is the mother of all things.
+d11 3
 @
 
 

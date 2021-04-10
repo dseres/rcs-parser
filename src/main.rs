@@ -35,4 +35,9 @@ d11 3
     if let Ok((_, delta)) = parse_deltatext(delta_str) {
         println!("{:?}", delta);
     };
+
+    let num = num!(1,1);
+    println!("{:?}", num);
+    let num = num![2];
+    println!("{:?}", num);
 }

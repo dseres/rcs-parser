@@ -114,7 +114,7 @@ fn parse_commitid(input: &str) -> IResult<&str, Option<String>, VerboseError<&st
 
 #[cfg(test)]
 mod test {
-    use crate::{Num};
+    use crate::{Delta, Num, num};
     use nom::{
         error::{ErrorKind, VerboseError, VerboseErrorKind},
         Err,
@@ -123,11 +123,11 @@ mod test {
     #[test]
     fn parse_date() {
         assert_eq!(
-            Ok(("", Num::new(vec![2021, 04, 07, 12, 00, 00]))),
+            Ok(("", num![2021, 04, 07, 12, 00, 00])),
             super::parse_date("\ndate 2021.04.07.12.00.00;")
         );
         assert_eq!(
-            Ok(("", Num::new(vec![2021, 04, 07, 12, 00, 00]))),
+            Ok(("", num![2021, 04, 07, 12, 00, 00])),
             super::parse_date(" date \t\r\n2021.04.07.12.00.00 ;")
         );
         assert_eq!(
@@ -148,10 +148,7 @@ mod test {
         assert_eq!(
             Err(Err::Error(VerboseError {
                 errors: vec![
-                    (
-                        "",
-                        VerboseErrorKind::Nom(ErrorKind::Tag)
-                    ),
+                    ("", VerboseErrorKind::Nom(ErrorKind::Tag)),
                     (
                         " date 2021.04.07.12.00.00",
                         VerboseErrorKind::Context(super::CONTEXT)
@@ -176,28 +173,59 @@ mod test {
             Ok(("", Some(String::from("testing")))),
             super::parse_state("\nstate testing;")
         );
-        assert_eq!(
-            Ok(("", None)),
-            super::parse_state("\nstate;")
-        );
+        assert_eq!(Ok(("", None)), super::parse_state("\nstate;"));
     }
 
     #[test]
     fn parse_branches() {
         fn parse_state() {
             assert_eq!(
-                Ok(("", vec![ Num::new(vec![1,2,13]), Num::new(vec![1,2,14])])),
+                Ok(("", vec![num![1, 2, 13], num![1, 2, 14]])),
                 super::parse_branches("\nbranches 1.2.13, 1.2.14;")
             );
             assert_eq!(
-                Ok(("", vec![ Num::new(vec![1,2,13])])),
+                Ok(("", vec![num![1, 2, 13]])),
                 super::parse_branches("\nbranches 1.2.13;")
             );
-            assert_eq!(
-                Ok(("", vec![ ])),
-                super::parse_branches("\nbranches;")
-            );
+            assert_eq!(Ok(("", vec![])), super::parse_branches("\nbranches;"));
         }
     }
-    
+
+    #[test]
+    fn parse_next() {
+        assert_eq!(
+            Ok(("", Some(num![1, 1]))),
+            super::parse_next("\nnext 1.1;")
+        );
+        assert_eq!(Ok(("", None)), super::parse_next("\nnext;"));
+    }
+
+    #[test]
+    fn parse_commitid() {
+        assert_eq!(
+            Ok(("", Some(String::from("abc")))),
+            super::parse_commitid("\n commitid abc;")
+        );
+        assert_eq!(Ok(("\n", None)), super::parse_commitid("\n"));
+    }
+
+    #[test]
+    fn name() {
+        let delta_str = r#"1.2
+            date    2021.03.25.10.16.43;    author dseres;  state beta;
+            branches
+                    1.2.1.1
+                    1.2.2.1;
+            next    1.1;"#;
+        let delta = Delta {
+            num: num![1, 2],
+            date: num![2021, 03, 25, 10, 16, 43],
+            author: String::from("dseres"),
+            state: Some(String::from("beta")),
+            branches: vec![ num![1, 2, 1, 1], num![1, 2, 2, 1]],
+            next: Some(num![1, 1]),
+            commitid: None,
+        };
+        assert_eq!(Ok(("",delta)), super::parse_delta(delta_str));
+    }
 }

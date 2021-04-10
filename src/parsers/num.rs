@@ -17,15 +17,15 @@ use nom::{
 ///
 /// Example:
 /// ```rust
-/// use rcs_parser::{Num,parse_num};
+/// use rcs_parser::{Num,parse_num,num};
 /// use nom::{
 ///     error::{ErrorKind, VerboseError, VerboseErrorKind},
 ///     Err,
 /// };
 ///
-/// assert_eq!(Ok(("", Num::new(vec![1, 1]))), parse_num("1.1"));
+/// assert_eq!(Ok(("", num![1, 1])), parse_num("1.1"));
 ///
-/// assert_eq!(Ok(("abc", Num::new(vec![1, 2, 4]))), parse_num("1.2.4abc"));
+/// assert_eq!(Ok(("abc", num![1, 2, 4])), parse_num("1.2.4abc"));
 ///
 /// assert_eq!(
 ///     Err(Err::Error(VerboseError {
@@ -62,7 +62,7 @@ pub fn parse_num(input: &str) -> IResult<&str, Num, VerboseError<&str>> {
 
 #[cfg(test)]
 mod test {
-    use super::Num;
+    use crate::{Num,num};
     use nom::{
         error::{ErrorKind, VerboseError, VerboseErrorKind},
         Err,
@@ -70,15 +70,15 @@ mod test {
 
     #[test]
     fn parse_num() {
-        assert_eq!(Ok(("", Num::new(vec![1]))), super::parse_num("1"));
-        assert_eq!(Ok(("", Num::new(vec![1, 1]))), super::parse_num("1.1"));
-        assert_eq!(Ok(("", Num::new(vec![1, 1, 1]))), super::parse_num("1.1.1"));
+        assert_eq!(Ok(("", num![1])), super::parse_num("1"));
+        assert_eq!(Ok(("", num![1, 1])), super::parse_num("1.1"));
+        assert_eq!(Ok(("", num![1, 1, 1])), super::parse_num("1.1.1"));
         assert_eq!(
-            Ok(("w", Num::new(vec![134, 1, 4, 2]))),
+            Ok(("w", num![134, 1, 4, 2])),
             super::parse_num("134.1.4.2w")
         );
         assert_eq!(
-            Ok(("a.1.4.2w", Num::new(vec![134]))),
+            Ok(("a.1.4.2w", num![134])),
             super::parse_num("134a.1.4.2w")
         );
         assert_eq!(
