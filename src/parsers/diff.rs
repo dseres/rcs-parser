@@ -19,7 +19,7 @@ use nom::{
 /// GNU document RCS diff format in the [diffutils documentation](https://www.gnu.org/software/diffutils/manual/html_node/RCS.html#RCS).
 ///
 /// Examples
-/// ```rust
+/// ```ignore
 /// use rcs_parser::{parse_diff_command, DiffCommand};
 /// use nom::{
 ///     error::{ErrorKind, VerboseError, VerboseErrorKind},
@@ -85,7 +85,7 @@ pub fn parse_diff_command(input: &str) -> IResult<&str, DiffCommand, VerboseErro
 /// This function cannot read Mac style line endings. ("\r").
 ///
 /// Examples
-/// ```rust
+/// ```ignore
 /// use rcs_parser::parse_diff_line;
 /// use nom::{
 ///     error::{ErrorKind, VerboseError, VerboseErrorKind},
@@ -132,7 +132,7 @@ pub fn parse_diff_line(input: &str) -> IResult<&str, String, VerboseError<&str>>
 #[cfg(test)]
 mod test {
 
-    use crate::{DiffCommand};
+    use crate::DiffCommand;
     use nom::{
         error::{ErrorKind, VerboseError, VerboseErrorKind},
         Err,

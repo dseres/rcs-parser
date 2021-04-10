@@ -4,11 +4,7 @@
 static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
 
 mod parsers;
-pub use crate::parsers::deltatext::*;
-pub use crate::parsers::diff::{parse_diff_command, parse_diff_line};
-pub use crate::parsers::num::parse_num;
-pub use crate::parsers::string::parse_string;
-pub use crate::parsers::chars::{is_special_chars, is_visible_char,is_idchar, parse_sym, parse_id};
+
 
 /// Num stores an RCS revision number as vector of unsigned integers.
 ///
@@ -58,7 +54,6 @@ pub struct DeltaText {
     pub diff: Vec<DiffCommand>,
 }
 
-
 #[derive(Debug, PartialEq, Clone)]
 pub struct Delta {
     pub num: Num,
@@ -71,13 +66,23 @@ pub struct Delta {
 }
 
 #[cfg(test)]
-mod test{
+mod test {
     use super::*;
 
     #[test]
     fn num() {
-        assert_eq!(Num{numbers: vec![100]}, num!(100));
-        assert_eq!(Num{numbers: vec![1,1]}, num!(1,1));
-        assert_eq!(Num{numbers: vec![1,1,2,1]}, num!(1,1,2,1));
+        assert_eq!(Num { numbers: vec![100] }, num!(100));
+        assert_eq!(
+            Num {
+                numbers: vec![1, 1]
+            },
+            num!(1, 1)
+        );
+        assert_eq!(
+            Num {
+                numbers: vec![1, 1, 2, 1]
+            },
+            num!(1, 1, 2, 1)
+        );
     }
 }

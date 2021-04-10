@@ -16,13 +16,14 @@ use nom::{
 /// > num       ::=  { digit | "." }+
 ///
 /// Example:
-/// ```rust
-/// use rcs_parser::{Num,parse_num,num};
+/// ```ignore
+/// use rcs_parser::{Num,num};
 /// use nom::{
 ///     error::{ErrorKind, VerboseError, VerboseErrorKind},
 ///     Err,
 /// };
 ///
+/// # fn not_needed(){
 /// assert_eq!(Ok(("", num![1, 1])), parse_num("1.1"));
 ///
 /// assert_eq!(Ok(("abc", num![1, 2, 4])), parse_num("1.2.4abc"));
@@ -46,6 +47,7 @@ use nom::{
 ///     })),
 ///     parse_num("not_number")
 /// );
+/// # }
 /// ```
 pub fn parse_num(input: &str) -> IResult<&str, Num, VerboseError<&str>> {
     context(
@@ -62,7 +64,7 @@ pub fn parse_num(input: &str) -> IResult<&str, Num, VerboseError<&str>> {
 
 #[cfg(test)]
 mod test {
-    use crate::{Num,num};
+    use crate::{num, Num};
     use nom::{
         error::{ErrorKind, VerboseError, VerboseErrorKind},
         Err,
@@ -77,10 +79,7 @@ mod test {
             Ok(("w", num![134, 1, 4, 2])),
             super::parse_num("134.1.4.2w")
         );
-        assert_eq!(
-            Ok(("a.1.4.2w", num![134])),
-            super::parse_num("134a.1.4.2w")
-        );
+        assert_eq!(Ok(("a.1.4.2w", num![134])), super::parse_num("134a.1.4.2w"));
         assert_eq!(
             Err(Err::Error(VerboseError {
                 errors: vec![
