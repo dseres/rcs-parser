@@ -6,4 +6,4 @@ Parsing RCS ([Revision Control System](https://www.gnu.org/software/rcs/)) files
 NOTE:
 This project is under heavy development. Current status is **30%**.
 
-Currently revision numbers, delta texts and strings can be parsed with this library. 
+Currently revision numbers, delta texts, delta and strings can be parsed with this library. RCS admin section is missing.
