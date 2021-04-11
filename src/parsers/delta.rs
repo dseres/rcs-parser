@@ -9,8 +9,6 @@ use nom::{
     IResult,
 };
 
-pub static CONTEXT: &str = "Delta";
-
 /// Parsing delta part of comma-v files.
 ///
 /// Grammar of delta is the following:
@@ -23,6 +21,7 @@ pub static CONTEXT: &str = "Delta";
 /// >   { "commitid" sym ";" }
 ///
 pub fn parse_delta(input: &str) -> IResult<&str, Delta, VerboseError<&str>> {
+    static CONTEXT: &str = "Delta";
     let (input, num) = context(CONTEXT, preceded(multispace0, parse_num))(input)?;
     let (input, date) = parse_value(CONTEXT, "date", parse_num)(input)?;
     let (input, author) = parse_value(CONTEXT, "author", map(parse_id, String::from))(input)?;
@@ -48,94 +47,6 @@ pub fn parse_delta(input: &str) -> IResult<&str, Delta, VerboseError<&str>> {
 mod test {
     use crate::{num, Delta, Num};
 
-
-    /*
-    #[test]
-    fn parse_date() {
-        assert_eq!(
-            Ok(("", num![2021, 04, 07, 12, 00, 00])),
-            super::parse_date("\ndate 2021.04.07.12.00.00;")
-        );
-        assert_eq!(
-            Ok(("", num![2021, 04, 07, 12, 00, 00])),
-            super::parse_date(" date \t\r\n2021.04.07.12.00.00 ;")
-        );
-        assert_eq!(
-            Err(Err::Error(VerboseError {
-                errors: vec![
-                    (
-                        "2021.04.07.12.00.00;",
-                        VerboseErrorKind::Nom(ErrorKind::Tag)
-                    ),
-                    (
-                        " 2021.04.07.12.00.00;",
-                        VerboseErrorKind::Context(super::CONTEXT)
-                    )
-                ]
-            })),
-            super::parse_date(" 2021.04.07.12.00.00;")
-        );
-        assert_eq!(
-            Err(Err::Error(VerboseError {
-                errors: vec![
-                    ("", VerboseErrorKind::Nom(ErrorKind::Tag)),
-                    (
-                        " date 2021.04.07.12.00.00",
-                        VerboseErrorKind::Context(super::CONTEXT)
-                    )
-                ]
-            })),
-            super::parse_date(" date 2021.04.07.12.00.00")
-        );
-    }
-
-    #[test]
-    fn parse_author() {
-        assert_eq!(
-            Ok(("", String::from("dseres"))),
-            super::parse_author("\nauthor dseres;")
-        );
-    }
-
-    #[test]
-    fn parse_state() {
-        assert_eq!(
-            Ok(("", Some(String::from("testing")))),
-            super::parse_state("\nstate testing;")
-        );
-        assert_eq!(Ok(("", None)), super::parse_state("\nstate;"));
-    }
-
-    #[test]
-    fn parse_branches() {
-        fn parse_state() {
-            assert_eq!(
-                Ok(("", vec![num![1, 2, 13], num![1, 2, 14]])),
-                super::parse_branches("\nbranches 1.2.13, 1.2.14;")
-            );
-            assert_eq!(
-                Ok(("", vec![num![1, 2, 13]])),
-                super::parse_branches("\nbranches 1.2.13;")
-            );
-            assert_eq!(Ok(("", vec![])), super::parse_branches("\nbranches;"));
-        }
-    }
-
-    #[test]
-    fn parse_next() {
-        assert_eq!(Ok(("", Some(num![1, 1]))), super::parse_next("\nnext 1.1;"));
-        assert_eq!(Ok(("", None)), super::parse_next("\nnext;"));
-    }
-
-    #[test]
-    fn parse_commitid() {
-        assert_eq!(
-            Ok(("", Some(String::from("abc")))),
-            super::parse_commitid("\n commitid abc;")
-        );
-        assert_eq!(Ok(("\n", None)), super::parse_commitid("\n"));
-    }
-    */
     #[test]
     fn parse_delta() {
         let delta_str = r#"1.2

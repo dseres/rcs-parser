@@ -83,7 +83,6 @@ pub struct Admin {
     pub symbols: Vec<(String, Num)>,
     pub locks: Vec<(String, Num)>,
     pub strict: bool,
-    //TODO: a parser must be created for intstring
     pub integrity: Option<String>,
     pub comment: Option<String>,
     pub expand: Option<String>,

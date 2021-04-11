@@ -2,7 +2,7 @@
 
 use nom::{
     branch::alt,
-    bytes::complete::{is_not, tag},
+    bytes::complete::{is_not, tag, take_until},
     combinator::map,
     error::{context, VerboseError},
     multi::many0,
@@ -49,7 +49,7 @@ pub fn parse_string(input: &str) -> IResult<&str, String, VerboseError<&str>> {
                 v.concat()
             }),
             tag("@"),
-            ),
+        ),
     )(input)
 }
 
@@ -58,10 +58,10 @@ pub fn parse_intstring(input: &str) -> IResult<&str, String, VerboseError<&str>>
         "intstring",
         delimited(
             tag("@"),
-            map(is_not("@"), String::from),
+            map(take_until("@"), String::from),
             tag("@"),
-            )
-        )(input)
+        ),
+    )(input)
 }
 
 #[cfg(test)]
@@ -114,6 +114,37 @@ mod tests {
                 ]
             })),
             super::parse_string("@zzz")
+        );
+    }
+
+    #[test]
+    fn parse_intstring() {
+        assert_eq!(Ok(("", "".to_string())), super::parse_intstring("@@"));
+        assert_eq!(
+            Ok(("xyz", "abc".to_string())),
+            super::parse_intstring("@abc@xyz")
+        );
+        assert_eq!(
+            Ok(("@xyz@", "abc".to_string())),
+            super::parse_intstring("@abc@@xyz@")
+        );
+        assert_eq!(
+            Err(Err::Error(VerboseError {
+                errors: vec![
+                    ("zzz", VerboseErrorKind::Nom(ErrorKind::Tag)),
+                    ("zzz", VerboseErrorKind::Context("intstring"))
+                ]
+            })),
+            super::parse_intstring("zzz")
+        );
+        assert_eq!(
+            Err(Err::Error(VerboseError {
+                errors: vec![
+                    ("zzz", VerboseErrorKind::Nom(ErrorKind::TakeUntil)),
+                    ("@zzz", VerboseErrorKind::Context("intstring"))
+                ]
+            })),
+            super::parse_intstring("@zzz")
         );
     }
 }
