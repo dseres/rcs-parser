@@ -2,19 +2,18 @@
 
 //! # rcs-parser
 //! Parsing RCS ([Revision Control System](https://www.gnu.org/software/rcs/)) files.
-//! 
-//! [Grammar](https://www.gnu.org/software/rcs/manual/html_node/comma_002dv-grammar.html#comma_002dv-grammar) of RCS files is quite simple, so this parser was easily implemented with the [Nom](https://github.com/Geal/nom) parser combinator library. 
-//! 
+//!
+//! [Grammar](https://www.gnu.org/software/rcs/manual/html_node/comma_002dv-grammar.html#comma_002dv-grammar) of RCS files is quite simple, so this parser was easily implemented with the [Nom](https://github.com/Geal/nom) parser combinator library.
+//!
 //! NOTE:
 //! This project is under heavy development. Current status is **30%**.
-//! 
+//!
 //! Currently revision numbers, delta texts, delta and strings can be parsed with this library. RCS admin section is missing.
 
 #[global_allocator]
 static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
 
 mod parsers;
-
 
 /// Num stores an RCS revision number as vector of unsigned integers.
 ///
@@ -87,7 +86,6 @@ pub struct Admin {
     pub comment: Option<String>,
     pub expand: Option<String>,
 }
-
 
 #[cfg(test)]
 mod test {

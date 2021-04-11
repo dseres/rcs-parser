@@ -6,12 +6,13 @@ Parsing RCS ([Revision Control System](https://www.gnu.org/software/rcs/)) files
 NOTE:
 This project is under heavy development. Current status is **40%**.
 
-Currently revision numbers, delta texts, delta and strings can be parsed with this library. RCS admin section is missing.
 
 TODO: 
 - modify char parsers' output to string
 - adding newphrase (RCS V5.8) parser and newphrase to admin, delta, deltatext.
+- create RcsData struct
 - create the PARSER function
+- implement Display for RcsData
 - integration test
 - write documentation
 - publish crate

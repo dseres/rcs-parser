@@ -2,7 +2,7 @@
 
 use crate::{parsers::*, *};
 use nom::{
-    character::complete::{multispace0},
+    character::complete::multispace0,
     combinator::{map, opt},
     error::{context, VerboseError},
     sequence::preceded,
@@ -28,7 +28,8 @@ pub fn parse_delta(input: &str) -> IResult<&str, Delta, VerboseError<&str>> {
     let (input, state) = parse_value_opt(CONTEXT, "state", map(parse_id, String::from))(input)?;
     let (input, branches) = parse_value_many0(CONTEXT, "branches", parse_num)(input)?;
     let (input, next) = parse_value(CONTEXT, "next", opt(parse_num))(input)?;
-    let (input, commitid) = parse_value_all_opt(CONTEXT, "commitid", map(parse_sym, String::from))(input)?;
+    let (input, commitid) =
+        parse_value_all_opt(CONTEXT, "commitid", map(parse_sym, String::from))(input)?;
     Ok((
         input,
         Delta {

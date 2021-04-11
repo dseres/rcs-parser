@@ -56,11 +56,7 @@ pub fn parse_string(input: &str) -> IResult<&str, String, VerboseError<&str>> {
 pub fn parse_intstring(input: &str) -> IResult<&str, String, VerboseError<&str>> {
     context(
         "intstring",
-        delimited(
-            tag("@"),
-            map(take_until("@"), String::from),
-            tag("@"),
-        ),
+        delimited(tag("@"), map(take_until("@"), String::from), tag("@")),
     )(input)
 }
 

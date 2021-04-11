@@ -1,11 +1,10 @@
 #![allow(dead_code)]
 
-
 use crate::{parsers::*, *};
 use nom::{
     bytes::complete::tag,
-    character::complete::{multispace0},
-    combinator::{map,opt},
+    character::complete::multispace0,
+    combinator::{map, opt},
     error::{context, VerboseError},
     sequence::{preceded, separated_pair, terminated},
     IResult,
@@ -32,8 +31,16 @@ pub fn parse_admin(input: &str) -> IResult<&str, Admin, VerboseError<&str>> {
     let (input, head) = parse_value(CONTEXT, "head", parse_num)(input)?;
     let (input, branch) = parse_value_all_opt(CONTEXT, "branch", parse_num)(input)?;
     let (input, access) = parse_value_many0(CONTEXT, "access", map(parse_id, String::from))(input)?;
-    let (input, symbols) = parse_value_many0(CONTEXT, "symbols", separated_pair(map(parse_sym, String::from), tag(":"), parse_num))(input)?;
-    let (input, locks) = parse_value_many0(CONTEXT, "locks", separated_pair(map(parse_id, String::from), tag(":"), parse_num))(input)?;
+    let (input, symbols) = parse_value_many0(
+        CONTEXT,
+        "symbols",
+        separated_pair(map(parse_sym, String::from), tag(":"), parse_num),
+    )(input)?;
+    let (input, locks) = parse_value_many0(
+        CONTEXT,
+        "locks",
+        separated_pair(map(parse_id, String::from), tag(":"), parse_num),
+    )(input)?;
     let (input, strict) = parse_strict(input)?;
     let (input, integrity) = parse_value_all_opt(CONTEXT, "integrity", parse_intstring)(input)?;
     let (input, comment) = parse_value_all_opt(CONTEXT, "comment", parse_string)(input)?;
@@ -57,10 +64,13 @@ pub fn parse_admin(input: &str) -> IResult<&str, Admin, VerboseError<&str>> {
 fn parse_strict(input: &str) -> IResult<&str, bool, VerboseError<&str>> {
     context(
         CONTEXT,
-        map(opt(terminated(
-            preceded(multispace0, tag("strict")),
-            preceded(multispace0, tag(";")),
-        )),|o| o.is_some())
+        map(
+            opt(terminated(
+                preceded(multispace0, tag("strict")),
+                preceded(multispace0, tag(";")),
+            )),
+            |o| o.is_some(),
+        ),
     )(input)
 }
 
@@ -70,11 +80,11 @@ mod test {
 
     #[test]
     fn parse_strict() {
-        assert_eq!( Ok(("", true)), super::parse_strict("strict;"));
-        assert_eq!( Ok(("", true)), super::parse_strict(" strict ;"));
-        assert_eq!( Ok(("strict", false)), super::parse_strict("strict"));
-        assert_eq!( Ok((";", false)), super::parse_strict(";"));
-        assert_eq!( Ok(("no", false)), super::parse_strict("no"));
+        assert_eq!(Ok(("", true)), super::parse_strict("strict;"));
+        assert_eq!(Ok(("", true)), super::parse_strict(" strict ;"));
+        assert_eq!(Ok(("strict", false)), super::parse_strict("strict"));
+        assert_eq!(Ok((";", false)), super::parse_strict(";"));
+        assert_eq!(Ok(("no", false)), super::parse_strict("no"));
     }
 
     #[test]
@@ -89,17 +99,22 @@ mod test {
             locks
                     dseres:2.1; strict;
             comment @# @;"#;
-        let result =         Admin {
-            head: num![2,1],
-            branch : None,
-            access : vec![],
-            symbols: vec![ (String::from("Fix2"), num![1,2,2,3]), (String::from("Fix1"), num![1,2,1,1]), (String::from("v2_1"), num![2,1]), (String::from("v1_1"), num![1,2])],
-            locks: vec![ (String::from("dseres"), num![2,1])],
+        let result = Admin {
+            head: num![2, 1],
+            branch: None,
+            access: vec![],
+            symbols: vec![
+                (String::from("Fix2"), num![1, 2, 2, 3]),
+                (String::from("Fix1"), num![1, 2, 1, 1]),
+                (String::from("v2_1"), num![2, 1]),
+                (String::from("v1_1"), num![1, 2]),
+            ],
+            locks: vec![(String::from("dseres"), num![2, 1])],
             strict: true,
             integrity: None,
             comment: Some(String::from("# ")),
             expand: None,
         };
-        assert_eq!( Ok(("", result)), super::parse_admin(input));
+        assert_eq!(Ok(("", result)), super::parse_admin(input));
     }
 }
