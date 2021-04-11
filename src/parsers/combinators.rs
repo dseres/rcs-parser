@@ -1,11 +1,10 @@
 #![warn(dead_code)]
 
-use crate::{parsers::*, *};
 use nom::{
     bytes::complete::tag,
     character::complete::{multispace0, multispace1},
-    combinator::{map, opt},
-    error::{context, ContextError, ParseError, VerboseError},
+    combinator::opt,
+    error::{context, ContextError, ParseError},
     multi::many0,
     sequence::{delimited, preceded},
     AsChar, Compare, IResult, InputTake, InputTakeAtPosition, Parser,
