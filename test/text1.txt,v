@@ -5,7 +5,8 @@ symbols
 	Fix1:1.2.1.1
 	v2_1:2.1
 	v1_1:1.2;
-locks; strict;
+locks
+	dseres:2.1; strict;
 comment	@# @;
 
 

@@ -1,19 +1,18 @@
 #![allow(dead_code)]
 
-/*
+
 use crate::{parsers::*, *};
 use nom::{
     bytes::complete::tag,
-    character::complete::{multispace0, multispace1},
-    combinator::{map, opt},
+    character::complete::{multispace0},
+    combinator::{map,opt},
     error::{context, VerboseError},
-    multi::many0,
-    sequence::{delimited, preceded},
+    sequence::{preceded, separated_pair, terminated},
     IResult,
 };
-*/
+
 pub static CONTEXT: &str = "Admin";
-/*
+
 /// Parsing delta part of comma-v files.
 ///
 /// Grammar of delta is the following:
@@ -30,15 +29,15 @@ pub static CONTEXT: &str = "Admin";
 ///
 ///
 pub fn parse_admin(input: &str) -> IResult<&str, Admin, VerboseError<&str>> {
-    let (input, head) = parse_head(input)?;
-    let (input, branch) = parse_branch(input)?;
-    let (input, access) = parse_access(input)?;
-    let (input, symbols) = parse_symbols(input)?;
-    let (input, locks) = parse_locks(input)?;
+    let (input, head) = parse_value(CONTEXT, "head", parse_num)(input)?;
+    let (input, branch) = parse_value_all_opt(CONTEXT, "branch", parse_num)(input)?;
+    let (input, access) = parse_value_many0(CONTEXT, "access", map(parse_id, String::from))(input)?;
+    let (input, symbols) = parse_value_many0(CONTEXT, "symbols", separated_pair(map(parse_sym, String::from), tag(":"), parse_num))(input)?;
+    let (input, locks) = parse_value_many0(CONTEXT, "locks", separated_pair(map(parse_id, String::from), tag(":"), parse_num))(input)?;
     let (input, strict) = parse_strict(input)?;
-    let (input, integrity) = parse_integrity(input)?;
-    let (input, comment) = parse_comment(input)?;
-    let (input, expand) = parse_expand(input)?;
+    let (input, integrity) = parse_value_all_opt(CONTEXT, "integrity", parse_intstring)(input)?;
+    let (input, comment) = parse_value_all_opt(CONTEXT, "comment", parse_string)(input)?;
+    let (input, expand) = parse_value_all_opt(CONTEXT, "expand", parse_string)(input)?;
     Ok((
         input,
         Admin {
@@ -55,184 +54,52 @@ pub fn parse_admin(input: &str) -> IResult<&str, Admin, VerboseError<&str>> {
     ))
 }
 
-fn parse_head(input: &str) -> IResult<&str, Num, VerboseError<&str>> {
+fn parse_strict(input: &str) -> IResult<&str, bool, VerboseError<&str>> {
     context(
         CONTEXT,
-        delimited(
-            preceded(multispace0, tag("head")),
-            preceded(multispace1, parse_num),
+        map(opt(terminated(
+            preceded(multispace0, tag("strict")),
             preceded(multispace0, tag(";")),
-        ),
-    )(input)
-}
-
-fn parse_author(input: &str) -> IResult<&str, String, VerboseError<&str>> {
-    context(
-        CONTEXT,
-        delimited(
-            preceded(multispace1, tag("author")),
-            preceded(multispace1, map(parse_id, String::from)),
-            preceded(multispace0, tag(";")),
-        ),
-    )(input)
-}
-
-fn parse_state(input: &str) -> IResult<&str, Option<String>, VerboseError<&str>> {
-    context(
-        CONTEXT,
-        delimited(
-            preceded(multispace1, tag("state")),
-            opt(preceded(multispace1, map(parse_id, String::from))),
-            preceded(multispace0, tag(";")),
-        ),
-    )(input)
-}
-
-fn parse_branches(input: &str) -> IResult<&str, Vec<Num>, VerboseError<&str>> {
-    context(
-        CONTEXT,
-        delimited(
-            preceded(multispace1, tag("branches")),
-            many0(preceded(multispace1, parse_num)),
-            preceded(multispace0, tag(";")),
-        ),
-    )(input)
-}
-
-fn parse_next(input: &str) -> IResult<&str, Option<Num>, VerboseError<&str>> {
-    context(
-        CONTEXT,
-        delimited(
-            preceded(multispace1, tag("next")),
-            opt(preceded(multispace1, parse_num)),
-            preceded(multispace0, tag(";")),
-        ),
-    )(input)
-}
-
-fn parse_commitid(input: &str) -> IResult<&str, Option<String>, VerboseError<&str>> {
-    context(
-        CONTEXT,
-        opt(delimited(
-            preceded(multispace1, tag("commitid")),
-            preceded(multispace1, map(parse_sym, String::from)),
-            preceded(multispace0, tag(";")),
-        )),
+        )),|o| o.is_some())
     )(input)
 }
 
 #[cfg(test)]
 mod test {
-    use crate::{num, Delta, Num};
-    use nom::{
-        error::{ErrorKind, VerboseError, VerboseErrorKind},
-        Err,
-    };
+    use crate::*;
 
     #[test]
-    fn parse_date() {
-        assert_eq!(
-            Ok(("", num![2021, 04, 07, 12, 00, 00])),
-            super::parse_date("\ndate 2021.04.07.12.00.00;")
-        );
-        assert_eq!(
-            Ok(("", num![2021, 04, 07, 12, 00, 00])),
-            super::parse_date(" date \t\r\n2021.04.07.12.00.00 ;")
-        );
-        assert_eq!(
-            Err(Err::Error(VerboseError {
-                errors: vec![
-                    (
-                        "2021.04.07.12.00.00;",
-                        VerboseErrorKind::Nom(ErrorKind::Tag)
-                    ),
-                    (
-                        " 2021.04.07.12.00.00;",
-                        VerboseErrorKind::Context(super::CONTEXT)
-                    )
-                ]
-            })),
-            super::parse_date(" 2021.04.07.12.00.00;")
-        );
-        assert_eq!(
-            Err(Err::Error(VerboseError {
-                errors: vec![
-                    ("", VerboseErrorKind::Nom(ErrorKind::Tag)),
-                    (
-                        " date 2021.04.07.12.00.00",
-                        VerboseErrorKind::Context(super::CONTEXT)
-                    )
-                ]
-            })),
-            super::parse_date(" date 2021.04.07.12.00.00")
-        );
+    fn parse_strict() {
+        assert_eq!( Ok(("", true)), super::parse_strict("strict;"));
+        assert_eq!( Ok(("", true)), super::parse_strict(" strict ;"));
+        assert_eq!( Ok(("strict", false)), super::parse_strict("strict"));
+        assert_eq!( Ok((";", false)), super::parse_strict(";"));
+        assert_eq!( Ok(("no", false)), super::parse_strict("no"));
     }
 
     #[test]
-    fn parse_author() {
-        assert_eq!(
-            Ok(("", String::from("dseres"))),
-            super::parse_author("\nauthor dseres;")
-        );
-    }
-
-    #[test]
-    fn parse_state() {
-        assert_eq!(
-            Ok(("", Some(String::from("testing")))),
-            super::parse_state("\nstate testing;")
-        );
-        assert_eq!(Ok(("", None)), super::parse_state("\nstate;"));
-    }
-
-    #[test]
-    fn parse_branches() {
-        fn parse_state() {
-            assert_eq!(
-                Ok(("", vec![num![1, 2, 13], num![1, 2, 14]])),
-                super::parse_branches("\nbranches 1.2.13, 1.2.14;")
-            );
-            assert_eq!(
-                Ok(("", vec![num![1, 2, 13]])),
-                super::parse_branches("\nbranches 1.2.13;")
-            );
-            assert_eq!(Ok(("", vec![])), super::parse_branches("\nbranches;"));
-        }
-    }
-
-    #[test]
-    fn parse_next() {
-        assert_eq!(Ok(("", Some(num![1, 1]))), super::parse_next("\nnext 1.1;"));
-        assert_eq!(Ok(("", None)), super::parse_next("\nnext;"));
-    }
-
-    #[test]
-    fn parse_commitid() {
-        assert_eq!(
-            Ok(("", Some(String::from("abc")))),
-            super::parse_commitid("\n commitid abc;")
-        );
-        assert_eq!(Ok(("\n", None)), super::parse_commitid("\n"));
-    }
-
-    #[test]
-    fn name() {
-        let delta_str = r#"1.2
-            date    2021.03.25.10.16.43;    author dseres;  state beta;
-            branches
-                    1.2.1.1
-                    1.2.2.1;
-            next    1.1;"#;
-        let delta = Delta {
-            num: num![1, 2],
-            date: num![2021, 03, 25, 10, 16, 43],
-            author: String::from("dseres"),
-            state: Some(String::from("beta")),
-            branches: vec![num![1, 2, 1, 1], num![1, 2, 2, 1]],
-            next: Some(num![1, 1]),
-            commitid: None,
+    fn parse_admin() {
+        let input = r#"head    2.1;
+            access;
+            symbols
+                    Fix2:1.2.2.3
+                    Fix1:1.2.1.1
+                    v2_1:2.1
+                    v1_1:1.2;
+            locks
+                    dseres:2.1; strict;
+            comment @# @;"#;
+        let result =         Admin {
+            head: num![2,1],
+            branch : None,
+            access : vec![],
+            symbols: vec![ (String::from("Fix2"), num![1,2,2,3]), (String::from("Fix1"), num![1,2,1,1]), (String::from("v2_1"), num![2,1]), (String::from("v1_1"), num![1,2])],
+            locks: vec![ (String::from("dseres"), num![2,1])],
+            strict: true,
+            integrity: None,
+            comment: Some(String::from("# ")),
+            expand: None,
         };
-        assert_eq!(Ok(("", delta)), super::parse_delta(delta_str));
+        assert_eq!( Ok(("", result)), super::parse_admin(input));
     }
 }
-*/
