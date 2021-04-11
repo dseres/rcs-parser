@@ -2,12 +2,10 @@
 
 use crate::{parsers::*, *};
 use nom::{
-    bytes::complete::tag,
-    character::complete::{multispace0, multispace1},
+    character::complete::{multispace0},
     combinator::{map, opt},
     error::{context, VerboseError},
-    multi::many0,
-    sequence::{delimited, preceded},
+    sequence::preceded,
     IResult,
 };
 
@@ -49,10 +47,7 @@ pub fn parse_delta(input: &str) -> IResult<&str, Delta, VerboseError<&str>> {
 #[cfg(test)]
 mod test {
     use crate::{num, Delta, Num};
-    use nom::{
-        error::{ErrorKind, VerboseError, VerboseErrorKind},
-        Err,
-    };
+
 
     /*
     #[test]
