@@ -15,5 +15,6 @@ TODO:
 - implement Display for RcsData
 - integration test
 - write documentation
+- switch jemalloc to optional
 - publish crate
 
