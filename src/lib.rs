@@ -1,4 +1,4 @@
-#![warn(missing_docs)]
+//#![warn(missing_docs)]
 
 //! # rcs-parser
 //! Parsing RCS ([Revision Control System](https://www.gnu.org/software/rcs/)) files.
@@ -74,6 +74,21 @@ pub struct Delta {
     pub next: Option<Num>,
     pub commitid: Option<String>,
 }
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct Admin {
+    pub head: Num,
+    pub branch: Option<Num>,
+    pub access: Vec<String>,
+    pub symbols: Vec<(String, Num)>,
+    pub locks: Vec<(String, Num)>,
+    pub strict: bool,
+    //TODO: a parser must be created for intstring
+    pub integrity: Option<String>,
+    pub comment: Option<String>,
+    pub expand: Option<String>,
+}
+
 
 #[cfg(test)]
 mod test {
