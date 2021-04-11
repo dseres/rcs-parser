@@ -6,7 +6,7 @@ use nom::{
     combinator::map,
     error::{context, VerboseError},
     multi::many0,
-    sequence::{preceded, terminated},
+    sequence::delimited,
     IResult,
 };
 
@@ -40,20 +40,28 @@ use nom::{
 ///     Err(Err::Error(VerboseError{ errors:  vec![("zz@@z", VerboseErrorKind::Nom(ErrorKind::Tag)), ("zz@@z", VerboseErrorKind::Context("string"))]})),
 ///     parse_string("zz@@z"));
 /// ```
-#[allow(dead_code)]
 pub fn parse_string(input: &str) -> IResult<&str, String, VerboseError<&str>> {
     context(
         "string",
-        preceded(
+        delimited(
             tag("@"),
-            terminated(
-                map(many0(alt((is_not("@"), map(tag("@@"), |_| "@")))), |v| {
-                    v.concat()
-                }),
-                tag("@"),
+            map(many0(alt((is_not("@"), map(tag("@@"), |_| "@")))), |v| {
+                v.concat()
+            }),
+            tag("@"),
             ),
-        ),
     )(input)
+}
+
+pub fn parse_intstring(input: &str) -> IResult<&str, String, VerboseError<&str>> {
+    context(
+        "intstring",
+        delimited(
+            tag("@"),
+            map(is_not("@"), String::from),
+            tag("@"),
+            )
+        )(input)
 }
 
 #[cfg(test)]

@@ -9,8 +9,6 @@ This project is under heavy development. Current status is **30%**.
 Currently revision numbers, delta texts, delta and strings can be parsed with this library. RCS admin section is missing.
 
 TODO: 
-- instring parser
 - admin parser
 - adding newphrase (RCS V5.8) parser and newphrase to admin, delta, deltatext
-- generic parser functions for admin and delta
 
