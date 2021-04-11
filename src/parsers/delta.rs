@@ -26,12 +26,12 @@ pub static CONTEXT: &str = "Delta";
 ///
 pub fn parse_delta(input: &str) -> IResult<&str, Delta, VerboseError<&str>> {
     let (input, num) = context(CONTEXT, preceded(multispace0, parse_num))(input)?;
-    let (input, date) = parse_date(input)?;
-    let (input, author) = parse_author(input)?;
-    let (input, state) = parse_state(input)?;
-    let (input, branches) = parse_branches(input)?;
-    let (input, next) = parse_next(input)?;
-    let (input, commitid) = parse_commitid(input)?;
+    let (input, date) = parse_value(CONTEXT, "date", parse_num)(input)?;
+    let (input, author) = parse_value(CONTEXT, "author", map(parse_id, String::from))(input)?;
+    let (input, state) = parse_value_opt(CONTEXT, "state", map(parse_id, String::from))(input)?;
+    let (input, branches) = parse_value_many0(CONTEXT, "branches", parse_num)(input)?;
+    let (input, next) = parse_value(CONTEXT, "next", opt(parse_num))(input)?;
+    let (input, commitid) = parse_value_all_opt(CONTEXT, "commitid", map(parse_sym, String::from))(input)?;
     Ok((
         input,
         Delta {
@@ -46,72 +46,6 @@ pub fn parse_delta(input: &str) -> IResult<&str, Delta, VerboseError<&str>> {
     ))
 }
 
-fn parse_date(input: &str) -> IResult<&str, Num, VerboseError<&str>> {
-    context(
-        CONTEXT,
-        delimited(
-            preceded(multispace1, tag("date")),
-            preceded(multispace1, parse_num),
-            preceded(multispace0, tag(";")),
-        ),
-    )(input)
-}
-
-fn parse_author(input: &str) -> IResult<&str, String, VerboseError<&str>> {
-    context(
-        CONTEXT,
-        delimited(
-            preceded(multispace1, tag("author")),
-            preceded(multispace1, map(parse_id, String::from)),
-            preceded(multispace0, tag(";")),
-        ),
-    )(input)
-}
-
-fn parse_state(input: &str) -> IResult<&str, Option<String>, VerboseError<&str>> {
-    context(
-        CONTEXT,
-        delimited(
-            preceded(multispace1, tag("state")),
-            opt(preceded(multispace1, map(parse_id, String::from))),
-            preceded(multispace0, tag(";")),
-        ),
-    )(input)
-}
-
-fn parse_branches(input: &str) -> IResult<&str, Vec<Num>, VerboseError<&str>> {
-    context(
-        CONTEXT,
-        delimited(
-            preceded(multispace1, tag("branches")),
-            many0(preceded(multispace1, parse_num)),
-            preceded(multispace0, tag(";")),
-        ),
-    )(input)
-}
-
-fn parse_next(input: &str) -> IResult<&str, Option<Num>, VerboseError<&str>> {
-    context(
-        CONTEXT,
-        delimited(
-            preceded(multispace1, tag("next")),
-            opt(preceded(multispace1, parse_num)),
-            preceded(multispace0, tag(";")),
-        ),
-    )(input)
-}
-
-fn parse_commitid(input: &str) -> IResult<&str, Option<String>, VerboseError<&str>> {
-    context(
-        CONTEXT,
-        opt(delimited(
-            preceded(multispace1, tag("commitid")),
-            preceded(multispace1, map(parse_sym, String::from)),
-            preceded(multispace0, tag(";")),
-        )),
-    )(input)
-}
-
 #[cfg(test)]
 mod test {
     use crate::{num, Delta, Num};
@@ -120,6 +54,7 @@ mod test {
         Err,
     };
 
+    /*
     #[test]
     fn parse_date() {
         assert_eq!(
@@ -205,9 +140,9 @@ mod test {
         );
         assert_eq!(Ok(("\n", None)), super::parse_commitid("\n"));
     }
-
+    */
     #[test]
-    fn name() {
+    fn parse_delta() {
         let delta_str = r#"1.2
             date    2021.03.25.10.16.43;    author dseres;  state beta;
             branches
