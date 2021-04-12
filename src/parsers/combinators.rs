@@ -141,7 +141,7 @@ mod test {
         assert_eq!(Ok(("", None)), parser(input));
 
         let input = " optional value;";
-        assert_eq!(Ok(("", Some("value"))), parser(input));
+        assert_eq!(Ok(("", Some("value".to_string()))), parser(input));
 
         let input = "bad tag";
         assert_eq!(
@@ -163,7 +163,7 @@ mod test {
         assert_eq!(Ok((" optional ;", None)), parser(input));
 
         let input = "optional value;";
-        assert_eq!(Ok(("", Some("value"))), parser(input));
+        assert_eq!(Ok(("", Some("value".to_string()))), parser(input));
 
         let input = "bad tag";
         assert_eq!(Ok(("bad tag", None)), parser(input));
@@ -177,10 +177,13 @@ mod test {
         assert_eq!(Ok(("", vec![])), parser(input));
 
         let input = "many0 abc;";
-        assert_eq!(Ok(("", vec!["abc"])), parser(input));
+        assert_eq!(Ok(("", vec!["abc".to_string()])), parser(input));
 
         let input = "many0 abc def;";
-        assert_eq!(Ok(("", vec!["abc", "def"])), parser(input));
+        assert_eq!(
+            Ok(("", vec!["abc".to_string(), "def".to_string()])),
+            parser(input)
+        );
 
         let input = "bad tag";
         assert_eq!(

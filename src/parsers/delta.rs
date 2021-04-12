@@ -3,7 +3,7 @@
 use crate::{parsers::*, *};
 use nom::{
     character::complete::multispace0,
-    combinator::{map, opt},
+    combinator::opt,
     error::{context, VerboseError},
     sequence::preceded,
     IResult,
@@ -24,12 +24,11 @@ pub fn parse_delta(input: &str) -> IResult<&str, Delta, VerboseError<&str>> {
     static CONTEXT: &str = "Delta";
     let (input, num) = context(CONTEXT, preceded(multispace0, parse_num))(input)?;
     let (input, date) = parse_value(CONTEXT, "date", parse_num)(input)?;
-    let (input, author) = parse_value(CONTEXT, "author", map(parse_id, String::from))(input)?;
-    let (input, state) = parse_value_opt(CONTEXT, "state", map(parse_id, String::from))(input)?;
+    let (input, author) = parse_value(CONTEXT, "author", parse_id)(input)?;
+    let (input, state) = parse_value_opt(CONTEXT, "state", parse_id)(input)?;
     let (input, branches) = parse_value_many0(CONTEXT, "branches", parse_num)(input)?;
     let (input, next) = parse_value(CONTEXT, "next", opt(parse_num))(input)?;
-    let (input, commitid) =
-        parse_value_all_opt(CONTEXT, "commitid", map(parse_sym, String::from))(input)?;
+    let (input, commitid) = parse_value_all_opt(CONTEXT, "commitid", parse_sym)(input)?;
     Ok((
         input,
         Delta {

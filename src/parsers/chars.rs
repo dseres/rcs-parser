@@ -2,6 +2,7 @@
 
 use nom::{
     bytes::complete::take_while1,
+    combinator::map,
     error::{context, VerboseError},
     IResult,
 };
@@ -78,8 +79,8 @@ pub fn is_idchar(c: char) -> bool {
 ///     ]
 ///     })), parse_sym(" abc"));
 /// ```
-pub fn parse_sym(input: &str) -> IResult<&str, &str, VerboseError<&str>> {
-    context("sym", take_while1(is_idchar))(input)
+pub fn parse_sym(input: &str) -> IResult<&str, String, VerboseError<&str>> {
+    context("sym", map(take_while1(is_idchar), String::from))(input)
 }
 
 /// parses a symbol
@@ -104,8 +105,11 @@ pub fn parse_sym(input: &str) -> IResult<&str, &str, VerboseError<&str>> {
 ///     ]
 /// })), parse_id(" .abc"));
 /// ```
-pub fn parse_id(input: &str) -> IResult<&str, &str, VerboseError<&str>> {
-    context("id", take_while1(|c| is_idchar(c) || c == '.'))(input)
+pub fn parse_id(input: &str) -> IResult<&str, String, VerboseError<&str>> {
+    context(
+        "id",
+        map(take_while1(|c| is_idchar(c) || c == '.'), String::from),
+    )(input)
 }
 
 #[cfg(test)]
@@ -150,10 +154,22 @@ mod test {
 
     #[test]
     fn parse_sym() {
-        assert_eq!(Ok(("$zzz", "abc123*")), super::parse_sym("abc123*$zzz"));
-        assert_eq!(Ok((" ~~~", "XZY-_")), super::parse_sym("XZY-_ ~~~"));
-        assert_eq!(Ok(("\t abc", "abc123!")), super::parse_sym("abc123!\t abc"));
-        assert_eq!(Ok(("", "abc123*é")), super::parse_sym("abc123*é"));
+        assert_eq!(
+            Ok(("$zzz", "abc123*".to_string())),
+            super::parse_sym("abc123*$zzz")
+        );
+        assert_eq!(
+            Ok((" ~~~", "XZY-_".to_string())),
+            super::parse_sym("XZY-_ ~~~")
+        );
+        assert_eq!(
+            Ok(("\t abc", "abc123!".to_string())),
+            super::parse_sym("abc123!\t abc")
+        );
+        assert_eq!(
+            Ok(("", "abc123*é".to_string())),
+            super::parse_sym("abc123*é")
+        );
         assert_eq!(
             Err(Err::Error(VerboseError {
                 errors: vec![
@@ -167,9 +183,12 @@ mod test {
 
     #[test]
     fn parse_id() {
-        assert_eq!(Ok(("@xyz", "A.a.1.")), super::parse_id("A.a.1.@xyz"));
-        assert_eq!(Ok(("", ".")), super::parse_id("."));
-        assert_eq!(Ok(("", "A")), super::parse_id("A"));
+        assert_eq!(
+            Ok(("@xyz", "A.a.1.".to_string())),
+            super::parse_id("A.a.1.@xyz")
+        );
+        assert_eq!(Ok(("", ".".to_string())), super::parse_id("."));
+        assert_eq!(Ok(("", "A".to_string())), super::parse_id("A"));
         assert_eq!(
             Err(Err::Error(VerboseError {
                 errors: vec![

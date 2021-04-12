@@ -30,16 +30,16 @@ pub static CONTEXT: &str = "Admin";
 pub fn parse_admin(input: &str) -> IResult<&str, Admin, VerboseError<&str>> {
     let (input, head) = parse_value(CONTEXT, "head", parse_num)(input)?;
     let (input, branch) = parse_value_all_opt(CONTEXT, "branch", parse_num)(input)?;
-    let (input, access) = parse_value_many0(CONTEXT, "access", map(parse_id, String::from))(input)?;
+    let (input, access) = parse_value_many0(CONTEXT, "access", parse_id)(input)?;
     let (input, symbols) = parse_value_many0(
         CONTEXT,
         "symbols",
-        separated_pair(map(parse_sym, String::from), tag(":"), parse_num),
+        separated_pair(parse_sym, tag(":"), parse_num),
     )(input)?;
     let (input, locks) = parse_value_many0(
         CONTEXT,
         "locks",
-        separated_pair(map(parse_id, String::from), tag(":"), parse_num),
+        separated_pair(parse_id, tag(":"), parse_num),
     )(input)?;
     let (input, strict) = parse_strict(input)?;
     let (input, integrity) = parse_value_all_opt(CONTEXT, "integrity", parse_intstring)(input)?;
