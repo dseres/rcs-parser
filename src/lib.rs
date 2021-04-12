@@ -46,12 +46,19 @@ macro_rules! num {
 ///Holds an instruction of diff command
 #[derive(Debug, PartialEq, Clone)]
 pub enum DiffCommand {
+    ///For the deltatext of head, the enum contains the initial lines.
+    Head(Vec<String>),
     ///This instruction means add the lines at position
     Add(u32, Vec<String>),
     ///This instruction means delete n (second parameter) lines from position (first parameter).
     Delete(u32, u32),
 }
 
+#[derive(Debug, PartialEq, Clone)]
+pub enum DeltaContent{
+    Head(String),
+    Diff(Vec<DiffCommand>),
+}
 /// holds differences between revisions.
 #[derive(Debug, PartialEq, Clone)]
 pub struct DeltaText {
@@ -60,7 +67,7 @@ pub struct DeltaText {
     ///Commit log
     pub log: String,
     ///Differences between this and its parent revision
-    pub diff: Vec<DiffCommand>,
+    pub diff: DeltaContent,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -85,6 +92,13 @@ pub struct Admin {
     pub integrity: Option<String>,
     pub comment: Option<String>,
     pub expand: Option<String>,
+}
+
+pub struct RcsData{
+    pub admin: Admin,
+    pub deltas: Vec<Delta>,
+    pub desc: String,
+    pub deltatexts: Vec<DeltaText>,
 }
 
 #[cfg(test)]

@@ -4,6 +4,7 @@ use crate::{parsers::*, *};
 use nom::{
     bytes::complete::tag,
     character::complete::multispace1,
+    combinator::map,
     error::{context, VerboseError},
     multi::many0,
     sequence::{preceded, terminated, tuple},
@@ -77,8 +78,31 @@ pub fn parse_deltatext(input: &str) -> IResult<&str, DeltaText, VerboseError<&st
                 preceded(multispace1, tag("text")),
                 preceded(
                     multispace1,
-                    preceded(tag("@"), terminated(many0(parse_diff_command), tag("@"))),
+                    preceded(
+                        tag("@"),
+                        map(terminated(many0(parse_diff_command), tag("@")), |v| {
+                            DeltaContent::Diff(v)
+                        }),
+                    ),
                 ),
+            ),
+        )),
+    )(input)?;
+    Ok((input, DeltaText { num, log, diff }))
+}
+
+pub fn parse_deltatext_head(input: &str) -> IResult<&str, DeltaText, VerboseError<&str>> {
+    let (input, (num, log, diff)) = context(
+        "DeltaText",
+        tuple((
+            parse_num,
+            preceded(
+                preceded(multispace1, tag("log")),
+                preceded(multispace1, parse_string),
+            ),
+            preceded(
+                preceded(multispace1, tag("text")),
+                preceded(multispace1, map(parse_string, |s| DeltaContent::Head(s))),
             ),
         )),
     )(input)?;
@@ -87,7 +111,7 @@ pub fn parse_deltatext(input: &str) -> IResult<&str, DeltaText, VerboseError<&st
 
 #[cfg(test)]
 mod test {
-    use crate::{DeltaText, DiffCommand, Num};
+    use crate::*;
     use nom::{
         error::{ErrorKind, VerboseError, VerboseErrorKind},
         Err,
@@ -116,7 +140,7 @@ d11 3
                         numbers: vec![1, 1]
                     },
                     log: "Initial revision\n".to_string(),
-                    diff: vec![
+                    diff: DeltaContent::Diff(vec![
                         DiffCommand::Add(
                             0,
                             vec![
@@ -130,7 +154,7 @@ d11 3
                             vec!["The Named is the mother of all things.".to_string()]
                         ),
                         DiffCommand::Delete(11, 3)
-                    ]
+                    ])
                 }
             )),
             super::parse_deltatext(delta_str)
@@ -223,6 +247,54 @@ text "#;
                 ]
             })),
             super::parse_deltatext(delta_str)
+        );
+    }
+
+    #[test]
+    fn parse_deltatext_head() {
+        let delta_str = r#"2.1
+log
+@lao back
+@
+text
+@The Way that can be told of is not the eternal Way;
+The name that can be named is not the eternal name.
+The Nameless is the origin of Heaven and Earth;
+The Named is the mother of all things.
+Therefore let there always be non-being,
+  so we may see their subtlety,
+And let there always be being,
+  so we may see their outcome.
+The two are the same,
+But after they are produced,
+  they have different names.
+@"#;
+        let text = String::from(
+            r#"The Way that can be told of is not the eternal Way;
+The name that can be named is not the eternal name.
+The Nameless is the origin of Heaven and Earth;
+The Named is the mother of all things.
+Therefore let there always be non-being,
+  so we may see their subtlety,
+And let there always be being,
+  so we may see their outcome.
+The two are the same,
+But after they are produced,
+  they have different names.
+"#,
+        );
+        assert_eq!(
+            Ok((
+                "",
+                DeltaText {
+                    num: Num {
+                        numbers: vec![2, 1]
+                    },
+                    log: "lao back\n".to_string(),
+                    diff: DeltaContent::Head(text),
+                }
+            )),
+            super::parse_deltatext_head(delta_str)
         );
     }
 }
