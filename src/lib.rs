@@ -2,18 +2,26 @@
 
 //! # rcs-parser
 //! Parsing RCS ([Revision Control System](https://www.gnu.org/software/rcs/)) files.
-//!
-//! [Grammar](https://www.gnu.org/software/rcs/manual/html_node/comma_002dv-grammar.html#comma_002dv-grammar) of RCS files is quite simple, so this parser was easily implemented with the [Nom](https://github.com/Geal/nom) parser combinator library.
-//!
-//! NOTE:
-//! This project is under heavy development. Current status is **30%**.
-//!
-//! Currently revision numbers, delta texts, delta and strings can be parsed with this library. RCS admin section is missing.
+//! 
+//! [Grammar](https://www.gnu.org/software/rcs/manual/html_node/comma_002dv-grammar.html#comma_002dv-grammar) of RCS files is quite simple, so this parser was easily implemented with [Nom](https://github.com/Geal/nom). Nom is the state of art implementation of parser combinators in Rust. 
+//! 
+//! You can easily parse comma-v files with this api. 
+//! Example:
+//! ```rust
+//! use rcs_parser::parse_rcs;
+//! 
+//! fn main() {
+//!     let contents = std::fs::read_to_string("examples/text1.txt,v").unwrap();
+//!     let (input, rcs) = parse_rcs(contents.as_str()).unwrap();
+//!     println!("{:?}", rcs);
+//! }
+//! ```
 
 #[global_allocator]
 static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
 
 mod parsers;
+pub use parsers::parse_rcs;
 
 /// Num stores an RCS revision number as vector of unsigned integers.
 ///
@@ -55,7 +63,7 @@ pub enum DiffCommand {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub enum DeltaContent{
+pub enum Text{
     Head(String),
     Diff(Vec<DiffCommand>),
 }
@@ -67,7 +75,7 @@ pub struct DeltaText {
     ///Commit log
     pub log: String,
     ///Differences between this and its parent revision
-    pub diff: DeltaContent,
+    pub text: Text,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -94,6 +102,7 @@ pub struct Admin {
     pub expand: Option<String>,
 }
 
+#[derive(Debug, PartialEq, Clone)]
 pub struct RcsData{
     pub admin: Admin,
     pub deltas: Vec<Delta>,

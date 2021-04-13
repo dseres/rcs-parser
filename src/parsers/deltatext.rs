@@ -66,7 +66,7 @@ use nom::{
 ///
 /// ```
 pub fn parse_deltatext(input: &str) -> IResult<&str, DeltaText, VerboseError<&str>> {
-    let (input, (num, log, diff)) = context(
+    let (input, (num, log, text)) = context(
         "DeltaText",
         tuple((
             parse_num,
@@ -81,18 +81,18 @@ pub fn parse_deltatext(input: &str) -> IResult<&str, DeltaText, VerboseError<&st
                     preceded(
                         tag("@"),
                         map(terminated(many0(parse_diff_command), tag("@")), |v| {
-                            DeltaContent::Diff(v)
+                            Text::Diff(v)
                         }),
                     ),
                 ),
             ),
         )),
     )(input)?;
-    Ok((input, DeltaText { num, log, diff }))
+    Ok((input, DeltaText { num, log, text }))
 }
 
 pub fn parse_deltatext_head(input: &str) -> IResult<&str, DeltaText, VerboseError<&str>> {
-    let (input, (num, log, diff)) = context(
+    let (input, (num, log, text)) = context(
         "DeltaText",
         tuple((
             parse_num,
@@ -102,11 +102,11 @@ pub fn parse_deltatext_head(input: &str) -> IResult<&str, DeltaText, VerboseErro
             ),
             preceded(
                 preceded(multispace1, tag("text")),
-                preceded(multispace1, map(parse_string, |s| DeltaContent::Head(s))),
+                preceded(multispace1, map(parse_string, |s| Text::Head(s))),
             ),
         )),
     )(input)?;
-    Ok((input, DeltaText { num, log, diff }))
+    Ok((input, DeltaText { num, log, text }))
 }
 
 #[cfg(test)]
@@ -140,7 +140,7 @@ d11 3
                         numbers: vec![1, 1]
                     },
                     log: "Initial revision\n".to_string(),
-                    diff: DeltaContent::Diff(vec![
+                    text: Text::Diff(vec![
                         DiffCommand::Add(
                             0,
                             vec![
@@ -291,7 +291,7 @@ But after they are produced,
                         numbers: vec![2, 1]
                     },
                     log: "lao back\n".to_string(),
-                    diff: DeltaContent::Head(text),
+                    text: Text::Head(text),
                 }
             )),
             super::parse_deltatext_head(delta_str)
