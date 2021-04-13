@@ -8,7 +8,7 @@ man rcsfile
 
 Migrating files from RCS to any other version control software is easy, except if you need the history. Good tools exists for migration with history. One of the best is [cvs2svn](https://github.com/mhagger/cvs2svn) written in python. 
 
-Sometimes an RCS repository contains too much customizations, so there is no a ready-made tool for do the migration. This api is written is rust, and will help to parse good old RCS (comma-v) files, which has the *,v* extensions.
+Sometimes an RCS repository contains too much customizations, so there is no a ready-made tool for do the migration. This api is written in rust, and will help to parse good old RCS (comma-v) files, which has the *,v* extensions.
 
 You can easily parse comma-v files with this api. 
 Example:
