@@ -26,15 +26,4 @@ fn main() {
 **Note:** Currently the progress of this library is at about 50%. 
 You can use the library now, but it has pre-β status. You may consider the api will change later.
 
----
-
-TODO: 
-
-- adding newphrase (RCS V5.8) parser and newphrase to admin, delta, deltatext.
-- implement Display for RcsData
-- implement a function to get file content of a revision
-- integration test
-- write more documentation
-- switch jemalloc to optional
-- publish crate
-
+See [todo list](TODO.md)!
