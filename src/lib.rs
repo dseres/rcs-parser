@@ -32,7 +32,7 @@ pub use parsers::parse_rcs;
 /// Num{numbers:vec![1,2,3,4]}
 /// # }
 /// ```
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, PartialOrd, Ord)]
 pub struct Num {
     ///The numbers of a revision number
     pub numbers: Vec<u32>,
@@ -87,10 +87,21 @@ pub struct Delta {
     pub branches: Vec<Num>,
     pub next: Option<Num>,
     pub commitid: Option<String>,
+    pub log: String,
+    pub text: Text,
 }
 
+// #[derive(Debug, PartialEq, Clone)]
+// pub struct RcsData{
+//     pub admin: Admin,
+//     pub deltas: Vec<Delta>,
+//     pub desc: String,
+//     pub deltatexts: Vec<DeltaText>,
+// }
+
+
 #[derive(Debug, PartialEq, Clone)]
-pub struct Admin {
+pub struct RcsData{
     pub head: Num,
     pub branch: Option<Num>,
     pub access: Vec<String>,
@@ -100,15 +111,10 @@ pub struct Admin {
     pub integrity: Option<String>,
     pub comment: Option<String>,
     pub expand: Option<String>,
+    pub desc: String,
+    pub deltas: std::collections::BTreeMap<Num, Delta>,
 }
 
-#[derive(Debug, PartialEq, Clone)]
-pub struct RcsData{
-    pub admin: Admin,
-    pub deltas: Vec<Delta>,
-    pub desc: String,
-    pub deltatexts: Vec<DeltaText>,
-}
 
 #[cfg(test)]
 mod test {

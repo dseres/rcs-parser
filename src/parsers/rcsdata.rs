@@ -3,30 +3,25 @@
 use crate::{parsers::*, *};
 use nom::{
     bytes::complete::tag,
-    character::complete::{multispace0, multispace1, line_ending,},
+    character::complete::{line_ending, multispace0, multispace1},
     error::{context, VerboseError},
     multi::many0,
     sequence::preceded,
     IResult,
 };
+use std::collections::BTreeMap;
 
 pub static CONTEXT: &str = "RCS";
 
 pub fn parse_rcs(input: &str) -> IResult<&str, RcsData, VerboseError<&str>> {
-    let (input, admin) = context(CONTEXT, parse_admin)(input)?;
+    let (input, mut rcsdata) = context(CONTEXT, parse_admin)(input)?;
     let (input, deltas) = context(CONTEXT, parse_deltas)(input)?;
     let (input, desc) = context(CONTEXT, parse_desc)(input)?;
     let (input, deltatexts) = context(CONTEXT, parse_deltatexts)(input)?;
-    let (input, _) = context( CONTEXT, line_ending)(input)?;
-    Ok((
-        input,
-        RcsData {
-            admin,
-            deltas,
-            desc,
-            deltatexts,
-        },
-    ))
+    let (input, _) = context(CONTEXT, line_ending)(input)?;
+    rcsdata.desc = desc;
+    rcsdata.deltas = build_deltas(deltas, deltatexts);
+    Ok((input, rcsdata))
 }
 
 fn parse_deltas(input: &str) -> IResult<&str, Vec<Delta>, VerboseError<&str>> {
@@ -44,10 +39,24 @@ fn parse_desc(input: &str) -> IResult<&str, String, VerboseError<&str>> {
 }
 
 fn parse_deltatexts(input: &str) -> IResult<&str, Vec<DeltaText>, VerboseError<&str>> {
-    let (input, delta_head) = context("deltatexts", preceded(multispace0, parse_deltatext_head))(input)?;
-    let (input, mut deltatexts) = context("deltatexts", many0(preceded(multispace0, parse_deltatext)))(input)?;
-    deltatexts.insert(0,delta_head);
-    Ok((input,deltatexts))
+    let (input, delta_head) =
+        context("deltatexts", preceded(multispace0, parse_deltatext_head))(input)?;
+    let (input, mut deltatexts) =
+        context("deltatexts", many0(preceded(multispace0, parse_deltatext)))(input)?;
+    deltatexts.insert(0, delta_head);
+    Ok((input, deltatexts))
+}
+
+fn build_deltas(deltas: Vec<Delta>, texts: Vec<DeltaText>) -> BTreeMap<Num, Delta> {
+    let mut dtree = BTreeMap::new();
+    for d in deltas.iter() {
+        let mut delta = d.clone();
+        let text = texts.iter().find(|t| t.num == delta.num).unwrap();
+        delta.log = text.log.clone();
+        delta.text = text.text.clone();
+        dtree.insert(d.num.clone(), delta);
+    }
+    dtree
 }
 
 #[cfg(test)]
@@ -142,9 +151,8 @@ The door of all subtleties!
         let contents = std::fs::read_to_string("examples/text1.txt,v").unwrap();
         let (input, rcs) = super::parse_rcs(contents.as_str()).unwrap();
         assert_eq!(input, "");
-        assert_eq!(rcs.admin.head, num![2, 1]);
+        assert_eq!(rcs.head, num![2, 1]);
         assert_eq!(rcs.deltas.len(), 7);
         assert_eq!(rcs.desc, "initial commit\ntext from lao\n");
-        assert_eq!(rcs.deltatexts.len(), rcs.deltas.len());
     }
 }

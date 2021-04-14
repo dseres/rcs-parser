@@ -39,13 +39,15 @@ pub fn parse_delta(input: &str) -> IResult<&str, Delta, VerboseError<&str>> {
             branches,
             next,
             commitid,
+            log: String::new(),
+            text: Text::Diff(Vec::new()),
         },
     ))
 }
 
 #[cfg(test)]
 mod test {
-    use crate::{num, Delta, Num};
+    use crate::*;
 
     #[test]
     fn parse_delta() {
@@ -63,6 +65,8 @@ mod test {
             branches: vec![num![1, 2, 1, 1], num![1, 2, 2, 1]],
             next: Some(num![1, 1]),
             commitid: None,
+            log: String::new(),
+            text: Text::Diff(Vec::new()),
         };
         assert_eq!(Ok(("", delta)), super::parse_delta(delta_str));
     }

@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 
+use std::collections::BTreeMap;
 use crate::{parsers::*, *};
 use nom::{
     bytes::complete::tag,
@@ -27,7 +28,7 @@ pub static CONTEXT: &str = "Admin";
 ///
 ///
 ///
-pub fn parse_admin(input: &str) -> IResult<&str, Admin, VerboseError<&str>> {
+pub fn parse_admin(input: &str) -> IResult<&str, RcsData, VerboseError<&str>> {
     let (input, head) = parse_value(CONTEXT, "head", parse_num)(input)?;
     let (input, branch) = parse_value_all_opt(CONTEXT, "branch", parse_num)(input)?;
     let (input, access) = parse_value_many0(CONTEXT, "access", parse_id)(input)?;
@@ -47,7 +48,7 @@ pub fn parse_admin(input: &str) -> IResult<&str, Admin, VerboseError<&str>> {
     let (input, expand) = parse_value_all_opt(CONTEXT, "expand", parse_string)(input)?;
     Ok((
         input,
-        Admin {
+        RcsData {
             head,
             branch,
             access,
@@ -57,6 +58,8 @@ pub fn parse_admin(input: &str) -> IResult<&str, Admin, VerboseError<&str>> {
             integrity,
             comment,
             expand,
+            desc: String::new(),
+            deltas: BTreeMap::new(),
         },
     ))
 }
@@ -76,6 +79,7 @@ fn parse_strict(input: &str) -> IResult<&str, bool, VerboseError<&str>> {
 
 #[cfg(test)]
 mod test {
+    use std::collections::BTreeMap;
     use crate::*;
 
     #[test]
@@ -99,7 +103,7 @@ mod test {
             locks
                     dseres:2.1; strict;
             comment @# @;"#;
-        let result = Admin {
+        let result = RcsData {
             head: num![2, 1],
             branch: None,
             access: vec![],
@@ -114,6 +118,8 @@ mod test {
             integrity: None,
             comment: Some(String::from("# ")),
             expand: None,
+            desc: String::new(),
+            deltas: BTreeMap::new(),
         };
         assert_eq!(Ok(("", result)), super::parse_admin(input));
     }
