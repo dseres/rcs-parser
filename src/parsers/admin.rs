@@ -1,6 +1,5 @@
 #![allow(dead_code)]
 
-use std::collections::BTreeMap;
 use crate::{parsers::*, *};
 use nom::{
     bytes::complete::tag,
@@ -10,6 +9,7 @@ use nom::{
     sequence::{preceded, separated_pair, terminated},
     IResult,
 };
+use std::collections::BTreeMap;
 
 pub static CONTEXT: &str = "Admin";
 
@@ -79,8 +79,8 @@ fn parse_strict(input: &str) -> IResult<&str, bool, VerboseError<&str>> {
 
 #[cfg(test)]
 mod test {
-    use std::collections::BTreeMap;
     use crate::*;
+    use std::collections::BTreeMap;
 
     #[test]
     fn parse_strict() {

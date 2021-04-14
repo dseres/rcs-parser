@@ -47,14 +47,15 @@ fn parse_deltatexts(input: &str) -> IResult<&str, Vec<DeltaText>, VerboseError<&
     Ok((input, deltatexts))
 }
 
-fn build_deltas(deltas: Vec<Delta>, texts: Vec<DeltaText>) -> BTreeMap<Num, Delta> {
+fn build_deltas(mut deltas: Vec<Delta>, mut texts: Vec<DeltaText>) -> BTreeMap<Num, Delta> {
     let mut dtree = BTreeMap::new();
-    for d in deltas.iter() {
-        let mut delta = d.clone();
-        let text = texts.iter().find(|t| t.num == delta.num).unwrap();
-        delta.log = text.log.clone();
-        delta.text = text.text.clone();
-        dtree.insert(d.num.clone(), delta);
+    for d in deltas.drain(..) {
+        dtree.insert(d.num.clone(), d);
+    }
+    for t in texts.drain(..) {
+        let mut d = dtree.get_mut(&(t.num)).unwrap();
+        d.log = t.log;
+        d.text = t.text;
     }
     dtree
 }

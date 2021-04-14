@@ -2,14 +2,14 @@
 
 //! # rcs-parser
 //! Parsing RCS ([Revision Control System](https://www.gnu.org/software/rcs/)) files.
-//! 
-//! [Grammar](https://www.gnu.org/software/rcs/manual/html_node/comma_002dv-grammar.html#comma_002dv-grammar) of RCS files is quite simple, so this parser was easily implemented with [Nom](https://github.com/Geal/nom). Nom is the state of art implementation of parser combinators in Rust. 
-//! 
-//! You can easily parse comma-v files with this api. 
+//!
+//! [Grammar](https://www.gnu.org/software/rcs/manual/html_node/comma_002dv-grammar.html#comma_002dv-grammar) of RCS files is quite simple, so this parser was easily implemented with [Nom](https://github.com/Geal/nom). Nom is the state of art implementation of parser combinators in Rust.
+//!
+//! You can easily parse comma-v files with this api.
 //! Example:
 //! ```rust
 //! use rcs_parser::parse_rcs;
-//! 
+//!
 //! fn main() {
 //!     let contents = std::fs::read_to_string("examples/text1.txt,v").unwrap();
 //!     let (input, rcs) = parse_rcs(contents.as_str()).unwrap();
@@ -63,10 +63,18 @@ pub enum DiffCommand {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub enum Text{
+pub enum Text {
     Head(String),
     Diff(Vec<DiffCommand>),
 }
+
+pub fn is_empty(t: &Text) -> bool {
+    match t {
+        Text::Head(s) => s.is_empty(),
+        Text::Diff(v) => v.is_empty(),
+    }
+}
+
 /// holds differences between revisions.
 #[derive(Debug, PartialEq, Clone)]
 pub struct DeltaText {
@@ -99,9 +107,8 @@ pub struct Delta {
 //     pub deltatexts: Vec<DeltaText>,
 // }
 
-
 #[derive(Debug, PartialEq, Clone)]
-pub struct RcsData{
+pub struct RcsData {
     pub head: Num,
     pub branch: Option<Num>,
     pub access: Vec<String>,
@@ -114,7 +121,6 @@ pub struct RcsData{
     pub desc: String,
     pub deltas: std::collections::BTreeMap<Num, Delta>,
 }
-
 
 #[cfg(test)]
 mod test {
