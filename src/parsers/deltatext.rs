@@ -11,6 +11,17 @@ use nom::{
     IResult,
 };
 
+/// holds differences between revisions.
+#[derive(Debug, PartialEq, Clone)]
+pub struct DeltaText {
+    ///The revision number
+    pub num: Num,
+    ///Commit log
+    pub log: String,
+    ///Differences between this and its parent revision
+    pub text: Text,
+}
+
 /// Parsing deltatext
 ///
 /// Grammar of deltatext is:
@@ -135,7 +146,7 @@ d11 3
         assert_eq!(
             Ok((
                 "",
-                DeltaText {
+                super::DeltaText {
                     num: Num {
                         numbers: vec![1, 1]
                     },
@@ -286,7 +297,7 @@ But after they are produced,
         assert_eq!(
             Ok((
                 "",
-                DeltaText {
+                super::DeltaText {
                     num: Num {
                         numbers: vec![2, 1]
                     },
