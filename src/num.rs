@@ -15,7 +15,7 @@ pub struct Num {
 
 /// Useful macro to create a Num instance simple.
 /// 
-/// Examples:
+/// # Examples:
 /// ```rust
 /// use rcs_parser::{Num,num};
 /// assert_eq!( Num{numbers: vec![]}, num![]);
@@ -38,7 +38,7 @@ macro_rules! num {
 impl Num {
     /// Shows that the Num is a valid revison number. 
     /// 
-    /// Examples:
+    /// # Examples:
     /// ```
     /// use rcs_parser::{Num,num};
     /// assert_eq!( true, num![1,2].is_valid_revision());
@@ -52,14 +52,14 @@ impl Num {
     /// assert_eq!( false, num![1,1,0].is_valid_revision());
     /// ```
     pub fn is_valid_revision(&self) -> bool {
-        self.numbers.len() > 0
+        !self.numbers.is_empty()
             && self.is_revision()
-            && self.numbers.iter().fold(true, |s, n| s && *n > 0)
+            && self.numbers.iter().all( |n| *n > 0)
     }
 
     /// Shows if a num is a branch's number.
     /// 
-    /// Examples:
+    /// # Examples:
     /// ```
     /// use rcs_parser::{Num,num};
     /// assert_eq!(true, num![1].is_branch());
@@ -73,7 +73,7 @@ impl Num {
 
     /// Shows if a num is a revision's number.
     /// 
-    /// Examples:
+    /// # Examples:
     /// ```
     /// use rcs_parser::{Num,num};
     /// assert_eq!(true, num![1,1].is_revision());
@@ -104,7 +104,7 @@ impl Num {
 
     /// Retreives all branching points of a num.
     /// 
-    /// Examples:
+    /// # Examples:
     /// ```
     /// use rcs_parser::{Num,num};
     /// assert_eq!(vec![num![1,2], num![1,2,3,4], num![1,2,3,4,5,6]] , num![1,2,3,4,5,6,7,8].get_branching_points());
@@ -115,7 +115,7 @@ impl Num {
         while i < self.numbers.len() {
             let numbers = Vec::from(&(self.numbers[0..i]));
             points.push(Num { numbers });
-            i = i + 2;
+            i += 2;
         }
         points
     }

@@ -113,7 +113,7 @@ pub fn parse_deltatext_head(input: &str) -> IResult<&str, DeltaText, VerboseErro
             ),
             preceded(
                 preceded(multispace1, tag("text")),
-                preceded(multispace1, map(parse_string, |s| Text::Head(s))),
+                preceded(multispace1, map(parse_string, Text::Head)),
             ),
         )),
     )(input)?;
